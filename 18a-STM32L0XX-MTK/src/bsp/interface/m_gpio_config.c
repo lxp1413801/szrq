@@ -34,12 +34,12 @@ void m_gpio_into_lpw(void)
 	HAL_GPIO_Init(GPIOC,&GPIO_InitStruct);
 	__HAL_RCC_GPIOC_CLK_DISABLE();
 
-	
+	/*
 	GPIO_InitStruct.Pin=GPIO_PIN_2;
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 	HAL_GPIO_Init(GPIOD,&GPIO_InitStruct);
 	__HAL_RCC_GPIOD_CLK_DISABLE();	
-	
+	*/
 
 	GPIO_InitStruct.Pin=GPIO_PIN_2 + GPIO_PIN_6 + GPIO_PIN_8 + GPIO_PIN_7;
 	//GPIO_InitStruct.Mode      = GPIO_MODE_ANALOG;
@@ -206,6 +206,18 @@ void m_gpio_config_pmcomp(void)
 	HAL_GPIO_Init(COMP2_INP_PORT, &GPIO_InitStruct);	
 }
 */
+void m_gpio_config_shell_open(void)
+{
+	GPIO_InitTypeDef GPIO_InitStruct={0};
+	m_shell_open_rcc_enable();
+	GPIO_InitStruct.Pin=SHELL_OPNE_DEC_PIN;
+	GPIO_InitStruct.Pull=GPIO_PULLUP;
+	GPIO_InitStruct.Speed=GPIO_SPEED_FREQ_LOW;
+	GPIO_InitStruct.Mode=GPIO_MODE_INPUT;
+	HAL_GPIO_Init(SHELL_OPNE_DEC_PORT,&GPIO_InitStruct);
+	//pd2
+}
+
 void m_gpio_config_alarm(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct={0};
@@ -228,6 +240,8 @@ void m_gpio_config_alarm_dect(void)
 	HAL_GPIO_Init(ALARM1_DECT_PORT,&GPIO_InitStruct);
 	//alarm0:pc5
 }
+
+
 void m_gpio_config_alarm_irq_disable(void)
 {
 

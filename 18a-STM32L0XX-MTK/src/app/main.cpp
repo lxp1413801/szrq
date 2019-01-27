@@ -126,7 +126,7 @@ void pre_star_thread_main_01(void)
 		m_gpio_exti9_5_enable();
 	#endif	
 	m_gpio_decanti_config();
-	decanti_strong_pull_up_release();
+	//decanti_strong_pull_up_release();
 	
 	m_gpio_exti2_3_enable();
 
@@ -208,7 +208,8 @@ int main(void)
 		#endif
 	#endif
 	m_clock_set_system_clock_hsi();
-	
+
+	__nop();
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();	
 	__HAL_RCC_GPIOC_CLK_ENABLE();		 

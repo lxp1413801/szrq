@@ -247,7 +247,7 @@ void api_calc_all_redo(void){
 	__hal_calc_all_redo();
 	osMutexRelease(osMutexSysData);
 }
-
+extern uint32_t szrqRoportNextTm;
 void api_calc_all(void)
 {
 	int32_t nextPrice=0L;
@@ -290,6 +290,19 @@ void api_calc_all(void)
 			vavle_off_from_app(OFF_REASON_NO_OV);
 		}
 	}
+	
+	//<<--更改上报频次
+	/*
+	if(sysData.szrqBalanceVol<=2000){
+		if(sysData.szrqRoportPeriodType!=6 || sysData.szrqRoportDataInterval!=4){
+			sysData.szrqRoportPeriodType=6;
+			sysData.szrqRoportDataInterval=4;			
+			szrqRoportNextTm=0;
+			szrqcollectNextTm=0;
+		}
+	}
+	*/
+	//-->
 	
 }
 osMessageQDef(reqMsgQ, 1,sizeof(TaskHandle_t));

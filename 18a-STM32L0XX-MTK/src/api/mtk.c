@@ -1436,7 +1436,7 @@ void vTheadNbBc26(void * pvParameters)
 					if(szrqWarnReportSendOld){
 						if(__msg.str.popType!=POP_TYPE_WARNING){
 							__msg.str.popType=POP_TYPE_WARNING;
-							__msg.str.warnByte=0;
+							__msg.str.warnFlg=0;
 						}
 						len=szrqWarnReportSendOld;
 						m_mem_cpy_len(nbAplSendBuffer,szrqWarnReportbuf,szrqWarnReportSendOld);						
@@ -1449,7 +1449,8 @@ void vTheadNbBc26(void * pvParameters)
 							szrqMultSendNum=0x00;
 							len=__szrq_load_frame_pop_m(nbAplSendBuffer,sizeof(nbAplSendBuffer));
 						}else if(__msg.str.popType==POP_TYPE_WARNING){
-							len=__szrq_load_frame_warn_report(nbAplSendBuffer,sizeof(nbAplSendBuffer),__msg.str.warnByte,0);
+							//len=__szrq_load_frame_warn_report(nbAplSendBuffer,sizeof(nbAplSendBuffer),__msg.str.warnByte,0);
+							len=__szrq_load_frame_warn_report_ex(nbAplSendBuffer,sizeof(nbAplSendBuffer),__msg.str.warnFlg,__msg.str.warnValue);
 						}
 					}
 				}else{
@@ -1500,7 +1501,7 @@ void vTheadNbBc26(void * pvParameters)
 					
 				}while(sendRedo<=2 );
 				if(ret<=0 || szrqSendStaMichine==__15S_SEND_SM_END)break;
-				
+				//if(ret<0 || szrqSendStaMichine==__15S_SEND_SM_END)break;
 				len=ret;
 				
 			}while(1);		

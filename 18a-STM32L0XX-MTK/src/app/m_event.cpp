@@ -105,54 +105,7 @@ void app_valve_off_msg_send(void)
 	}	
 }
 
-/*
-void vavle_on_from_app(void)
-{
-	uint8_t bkmenu,bksubmenu;
-	bkmenu=menu;
-	bksubmenu=subMenu;
 
-	menu=0;
-	subMenu=subMENU_MAIN_VAVLE_ON;
-	vavle_on_from_app_hook();
-	app_valve_on();
-	subMenu=0;
-	flgValveErrSend=false;
-	
-	menu=bkmenu;
-	subMenu=bksubmenu;	
-}
-
-void vavle_off_from_app(uint8_t reson)
-{
-	uint8_t bkmenu,bksubmenu;
-	bkmenu=menu;
-	bksubmenu=subMenu;
-	
-	uint8_t fiOff=0x00,fiSend=0x00;
-	if(sysData.DLCS>DLC_STATUS_A){
-		if(!(vavleState==VALVE_OFF || vavleState==VALVE_OPERATION_OFF)){
-			fiOff=0x01;
-			fiSend=0x01;
-		}
-	}else {
-		if((vavleState==VALVE_OFF && VavleOffReason!=reson) || (vavleState == VALVE_ON)){
-			fiOff=0x01;
-		}			
-	}
-	if(fiOff){
-		VavleOffReason=reson;
-		menu=0;
-		subMenu=subMENU_MAIN_VAVLE_OFF;	
-		vavle_off_from_app_hook();
-		app_valve_off();		
-	}
-	if(fiSend)even_send_msg_to_start_rf( );
-	
-	menu=bkmenu;
-	subMenu=bksubmenu;
-}
-*/
 void vavle_on_from_app(void)
 {
 //	menu=0;
@@ -164,10 +117,11 @@ void vavle_on_from_app(void)
 	flgValveErrSend=false;
 	if(sysData.DLCS>DLC_STATUS_A){
 		if(!(VavleOffReason == OFF_REASON_TEMP || VavleOffReason== OFF_REASON_WARN \
-		|| VavleOffReason== OFF_REASON_FORCE /*|| VavleOffReason == OFF_REASON_LO_VOLETAGE*/)){
+		|| VavleOffReason== OFF_REASON_FORCE || VavleOffReason == OFF_REASON_LO_VOLETAGE)){
 			udpSendmsg.t32=0x00UL;
 			udpSendmsg.str.popType=POP_TYPE_WARNING;
-			udpSendmsg.str.warnByte=0;	
+			udpSendmsg.str.warnFlg=0;	
+			udpSendmsg.str.warnValue=0;
 			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
 			even_send_msg_to_start_rf(&udpSendmsg);		
 		}
@@ -182,7 +136,7 @@ void vavle_off_from_app(uint8_t reson)
 			fiOff=1;
 			
 			if(!(reson == OFF_REASON_TEMP || reson== OFF_REASON_WARN \
-			|| reson== OFF_REASON_FORCE || reson == OFF_REASON_LO_VOLETAGE)){
+			|| reson== OFF_REASON_FORCE || reson == OFF_REASON_LO_VOLETAGE || reson==OFF_REASON_SHELL_OPEN)){
 				fiSend=1;	
 			}
 		}
@@ -198,16 +152,8 @@ void vavle_off_from_app(uint8_t reson)
 	if(fiSend){
 		udpSendmsg.t32=0x00UL;
 		udpSendmsg.str.popType=POP_TYPE_WARNING;
-		udpSendmsg.str.warnByte=1;
-		/*
-		if(VavleOffReason==OFF_REASON_LOW_OV){
-			udpSendmsg.str.warnType=SZRQ_WARNVAL_BALANCE_LOW;
-		}else if(VavleOffReason==OFF_REASON_NO_OV){
-			udpSendmsg.str.warnType=SZRQ_WARNVAL_BALANCE_NO;
-		}else{
-			udpSendmsg.str.warnType=SZRQ_WARNVAL_ABMORMAL_OFF;
-		}
-		*/
+		udpSendmsg.str.warnFlg=1;
+		udpSendmsg.str.warnValue=0;
 		udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
 		even_send_msg_to_start_rf(&udpSendmsg);
 	}
@@ -232,6 +178,7 @@ uint8_t check_vavle_open_condition()
 
 	if(sysData.lockReason.bits.bSeverOff )return 0;
 	if(sysData.lockReason.bits.bBalance )return 0;
+	if(sysData.lockReason.bits.bShellOpen)return 0;
 	uint8_t tmtry=sysData.qcNoTryTimes;
 	if(tmtry==1)tmtry=2;		
 	if(sysData.lockReason.bits.bNoflow>=tmtry && tmtry!=0)return 0;
@@ -625,7 +572,8 @@ void szrq_calc_next_report_tm(void)
 			szrqRoportNextTm=t32+3600UL;	
 			break;
 		case 6:
-			tx=sysData.szrqtPeriodValue;
+			//tx=sysData.szrqtPeriodValue;
+			tx=sysData.szrqRoportDataInterval;
 			t32=system_dt_to_time_stamp(&dt);
 			szrqRoportNextTm=t32+tx*3600UL;	
 			break;	
@@ -692,7 +640,8 @@ void szrq_fi_collect(void)
 		//>>		
 		//采集；
 		//<< todo
-		if(szrqRtcSync && vavleState!=VALVE_OFF)szrq_item_save();
+		//if(szrqRtcSync && vavleState!=VALVE_OFF)szrq_item_save();
+		if(szrqRtcSync )szrq_item_save();
 	}	
 }
 
@@ -743,7 +692,9 @@ void event_rtc_change_hour(void)
 
 void event_rtc_change_day(void)
 {
-
+	//《规格书5.8.1》
+	//sysData.devStatus.bits.bStrongMagnetic=0;
+	//api_sysdata_save();
 }
 
 void event_rtc_date_time_x(void)
@@ -831,13 +782,53 @@ void event_rtc_process_sec(void)
 	
 	//搞锤子花样
 	if(m_gpio_read(FLOW_PULSE_PORT,FLOW_PULSE_PIN)){
-		decanti_strong_pull_up();
+		//decanti_strong_pull_up();
 	}else{
-		decanti_strong_pull_up_release();
+		//decanti_strong_pull_up_release();
 	}
 	tm=osKernelSysTick()-tm;
 	__nop();
 }
+
+bool shellOpened=false;
+void event_shell_open_process(void)
+{
+	m_shell_open_rcc_enable();
+	if(m_gpio_read(SHELL_OPNE_DEC_PORT,SHELL_OPNE_DEC_PIN)){
+		//osDelay(20)
+		//shellOpened=true;
+		sysData.devStatus.bits.bShellOpenB=1;
+		sysData.lockReason.bits.bShellOpen=1;
+
+		vavle_off_from_app(OFF_REASON_SHELL_OPEN);
+		//if(!szrqRtcSync)return 0;
+		if(!shellOpened){
+			//if(!szrqRtcSync)return;
+			shellOpened=true;
+			udpSendmsg.t32=0x00UL;
+			udpSendmsg.str.popType=POP_TYPE_WARNING;
+			udpSendmsg.str.warnFlg=1;
+			udpSendmsg.str.warnValue=SZRQ_WARNVAL_SHELL_OPENB;
+			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
+			even_send_msg_to_start_rf(&udpSendmsg);
+		}
+	}else{
+		sysData.devStatus.bits.bShellOpenB=0;
+		
+		if(shellOpened){
+			//if(!szrqRtcSync)return;
+			shellOpened=false;	
+			udpSendmsg.t32=0x00UL;
+			udpSendmsg.str.popType=POP_TYPE_WARNING;
+			udpSendmsg.str.warnFlg=0;
+			udpSendmsg.str.warnValue=SZRQ_WARNVAL_SHELL_OPENB;
+			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
+			even_send_msg_to_start_rf(&udpSendmsg);			
+		}
+		
+	}
+}
+
 void event_alarm_process(void)
 {
 	//add dect
@@ -963,6 +954,16 @@ uint8_t event_process_check_batteray(void)
 		vavle_off_from_app(OFF_REASON_HI_VOLETAGE);
 		sysData.devStatus.bits.bPwrStatus =POWER_STATUS_OVER;
 	}else{
+		
+		if(sysData.devStatus.bits.bPwrStatus==POWER_STATUS_DOWN){
+			udpSendmsg.t32=0x00UL;
+			udpSendmsg.str.popType=POP_TYPE_WARNING;
+			udpSendmsg.str.warnFlg=0;
+			udpSendmsg.str.warnValue=SZRQ_WARNVAL_PDBAT0;
+			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
+			even_send_msg_to_start_rf(&udpSendmsg);				
+		}
+		
 		sysData.devStatus.bits.bPwrStatus =POWER_STATUS_NORMAL;
 	}
 	
@@ -1103,7 +1104,7 @@ void vTheadEvent(void * pvParameters)
 	osEvent event;
 	
 	m_adc_init();
-	
+	m_gpio_config_shell_open();
 	//m_flow_data_init();
 	m_flow_all_data_init();
 	//event_process_check_batteray();
@@ -1143,6 +1144,7 @@ void vTheadEvent(void * pvParameters)
 			m_flow_process_ex();
 			event_ste_process();
 			event_alarm_process();
+			event_shell_open_process();
 			event_process_check_batteray();
 			//event_pop_every_day();
 			m_soft_wdg_clr();

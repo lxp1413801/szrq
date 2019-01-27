@@ -525,7 +525,90 @@ uint8_t __szrq_get_off_reason(void)
 
 uint8_t szrqWarnReportSendOld=0;
 uint8_t szrqWarnReportbuf[128];
+int16_t __szrq_load_frame_warn_report_ex(uint8_t* buf,uint16_t ssize,uint8_t warnFlg,uint8_t value)
+{
+	__szrq_ddfWarningReport_t* stb;
+	
+	int16_t len,t16=0x00;
+	int32_t t32;
+	
+	if(!buf)return 0;
+	len=sizeof(__szrq_ddfWarningReport_t)+sizeof(__szrq_framHeader_t);
+	if(ssize<len)return 0;	
+	m_mem_set(buf,0,ssize);
+	
+	__szrq_load_frame_header(buf,ssize,EXINF_DS_deviceReq,SZRQ_CMD_WARNING_REPORT);
+	stb=(__szrq_ddfWarningReport_t*)(buf+sizeof(__szrq_framHeader_t));
+	
+	m_mem_cpy_len(stb->dataLen,(uint8_t*)&len,sizeof(uint16_t));
+	m_mem_cpy_len(stb->commSn,sysData.commSN,16);	
+	//<--todo
+	__szrq_get_sys_rtc(stb->warningDt,NULL);
+	stb->warningFlg=warnFlg;
+	stb->warnType=0;
+	
+	if(value){
+		szrqWarnType=value;
+		stb->warnType=value;
+	}else{ 
+		if(warnFlg){
+			stb->warnType=__szrq_get_warn_type();
+		}else{
+			stb->warnType=szrqWarnType;
+		}
+	}
 
+	t16=SZRQ_DATA_INVILID;
+	m_mem_cpy_len(stb->rtPressure,(uint8_t*)&t16,sizeof(int16_t));		
+	t16=SZRQ_DATA_INVILID;
+	m_mem_cpy_len(stb->rtTemp,(uint8_t*)&t16,sizeof(int16_t));
+	
+	t32=SZRQ_DATA_INVILID;
+	m_mem_cpy_len(stb->speed,(uint8_t*)&t32,sizeof(int32_t));
+	
+	t32=SZRQ_DATA_INVILID;
+	m_mem_cpy_len(stb->strength,(uint8_t*)&t32,sizeof(int32_t));	
+
+	
+	
+	float f=(float)SZRQ_DATA_INVILID;
+	m_mem_cpy_len((uint8_t*)&t32,(uint8_t*)&f,sizeof(float));
+	t32=swap_uint32(t32);
+	m_mem_cpy_len(stb->rtFlow,(uint8_t*)&t32,sizeof(int32_t));	
+		
+
+	stb->batPercent0=__szrq_get_batPercent0();
+	stb->batPercent1=-1;
+	
+	t32=sysData.szrqBalance;
+	m_mem_cpy_len(stb->balance,(uint8_t*)&t32,sizeof(int32_t));	
+	stb->valveStatus=__szrq_get_valve_status();
+	if(warnFlg){
+		stb->offReason=__szrq_get_off_reason();
+	}else{
+		stb->offReason=0;
+	}
+	
+	
+	#if __my_SZRQ_DEVCLASS==SZRQ_DEVCLASS_CIVIL
+	t32=totalVolume/10;
+	if(totalVolume%10>=5)t32++;
+	#else
+	t32=totalVolume/100;
+	if(totalVolume%100>=5)t32++;
+	#endif
+	m_mem_cpy_len(stb->totalVol,(uint8_t*)&t32,sizeof(int32_t));
+	//t32>>=1;
+	m_mem_cpy_len(stb->stpTotaleVol,(uint8_t*)&t32,sizeof(int32_t));
+	
+	
+	stb->deviceClass=__my_SZRQ_DEVCLASS;
+
+	//-->
+	__szrq_crc16_append(buf,len-3);
+	stb->endChr=SZRQ_FRAME_END_CHR;
+	return len;		
+}
 int16_t __szrq_load_frame_warn_report(uint8_t* buf,uint16_t ssize,uint8_t warnFlg,uint8_t value)
 {
 	__szrq_ddfWarningReport_t* stb;
@@ -829,9 +912,11 @@ int16_t __szrq_load_frame_all_param(uint8_t* buf,uint16_t ssize)
 	
 	stb->volSetFlg=1;					//	uint8_t		volSetFlg;
 	float f=0.0;
-	f=(float)(sysData.initVolume)*100;
+	f=(float)(sysData.initVolume)/100;
 	//t32=sysData.initVolume;				//	uint8_t		volume[4];
-	m_mem_cpy_len(stb->volume,(uint8_t*)&f,sizeof(float));
+	m_mem_cpy_len((uint8_t*)&t32,(uint8_t*)&f,sizeof(uint32_t));
+	t32=swap_uint32(t32);
+	m_mem_cpy_len(stb->volume,(uint8_t*)&t32,sizeof(uint32_t));
 		
 	stb->periodFlg=1;						//	uint8_t		periodFlg;
 	stb->period=sysData.szrqRoportPeriodType;//	uint8_t		period;
@@ -925,7 +1010,7 @@ int16_t __szrq_load_sync_balance_rsp(uint8_t* buf,uint16_t ssize)
 	#if __my_SZRQ_DEVCLASS==SZRQ_DEVCLASS_NONCIVIL
 	t32/=100;
 	#else
-	t32/=10
+	t32/=10;
 	#endif
 	m_mem_cpy_len(stb->balanceVol,(uint8_t*)&t32,sizeof(t32));
 	
@@ -933,7 +1018,7 @@ int16_t __szrq_load_sync_balance_rsp(uint8_t* buf,uint16_t ssize)
 	#if __my_SZRQ_DEVCLASS==SZRQ_DEVCLASS_NONCIVIL
 	t32/=100;
 	#else
-	t32/=10	
+	t32/=10;
 	#endif
 	m_mem_cpy_len(stb->severVolume,(uint8_t*)&t32,sizeof(t32));
 	
@@ -1134,10 +1219,13 @@ int16_t __szrq_ins_set_pram(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,uint16_t
 	}
 	float f=0.0f;
 	if(stb->volSetFlg){
-		m_mem_cpy_len((uint8_t*)&f,stb->volume,sizeof(float));
-		//sysData.totalVolume=t32;
+		m_mem_cpy_len((uint8_t*)&t32,stb->volume,sizeof(uint32_t));
+		t32=swap_uint32(t32);
+		m_mem_cpy_len((uint8_t*)&f,(uint8_t*)&t32,sizeof(uint32_t));
 		t32=(int32_t)(100*f);
 		sysData.initVolume=t32;
+		//
+		sysData.totalVolume=t32;
 		saveFlg=true;
 	}
 	

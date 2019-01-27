@@ -75,8 +75,13 @@
 	#define SZRQ_DEVCLASS_CIVIL		0
 	#define SZRQ_DEVCLASS_NONCIVIL	1
 	
-	#define __my_SZRQ_DEVCLASS SZRQ_DEVCLASS_NONCIVIL
 	
+	//if 
+	#if __SUB_VER_DEF_QN>=60
+		#define __my_SZRQ_DEVCLASS SZRQ_DEVCLASS_NONCIVIL
+	#else 
+		#define __my_SZRQ_DEVCLASS SZRQ_DEVCLASS_CIVIL
+	#endif
 	//平台回复
 	#define SZRQ_CMD_CLOUDRSP	0x00
 	typedef struct{
@@ -116,10 +121,14 @@
 	typedef union{
 		uint32_t t32;
 		struct{
-			uint8_t popType;
-			uint8_t	popPeriod;
-			uint8_t warnByte;	
 			uint8_t	eventMsg;
+			uint8_t popType;
+			uint8_t warnFlg;	
+			union{
+				uint8_t	popPeriod;
+				uint8_t warnValue;
+			};
+			
 		}str;
 	}__szrq_udpSendmsg_t;
 	
@@ -664,6 +673,8 @@
 	extern int16_t __szrq_load_frame_pop_s(uint8_t* buf,uint16_t ssize,uint8_t popPeriodType);
 	extern int16_t __szrq_load_frame_pop_m(uint8_t* buf,uint16_t ssize);
 	extern int16_t __szrq_load_frame_warn_report(uint8_t* buf,uint16_t ssize,uint8_t warnFlg,uint8_t value);
+	extern int16_t __szrq_load_frame_warn_report_ex(uint8_t* buf,uint16_t ssize,uint8_t warnFlg,uint8_t value);
+	
 	extern int16_t __szrq_load_frame_freeze(uint8_t* buf,uint16_t ssize);
 	
 	extern int16_t __szrq_received_process(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,uint16_t ssize);

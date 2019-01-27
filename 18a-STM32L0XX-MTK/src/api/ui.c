@@ -707,7 +707,11 @@ void ui_disp_off_reason(void)
 		case OFF_REASON_LEAKAGE:		m_lcd_disp_str((uint8_t*)"Gas-ala");break;
 		case OFF_REASON_CZSN_NONET:		m_lcd_disp_str((uint8_t*)"nc-Off");break;
 		case OFF_REASON_CZSN_WARNING:	m_lcd_disp_str((uint8_t*)"pr-Off");break;
-		default	:						m_lcd_disp_str((uint8_t*)" press");break;			
+		case OFF_REASON_SHELL_OPEN:		m_lcd_disp_str((uint8_t*)"sh-Off");break;
+		default	:						m_lcd_disp_str((uint8_t*)" press");break;
+		
+		
+		
 	}
     
     if(t8==OFF_REASON_HIGHT_GAS_FLOW)
@@ -1006,7 +1010,8 @@ void ui_disp_off(void)
 	uint8_t tmtry=sysData.qcNoTryTimes;
 	if(tmtry==1)tmtry=2;
 	if((sysData.lockReason.bits.bNoflow>=tmtry && tmtry!=0) || (sysData.lockReason.bits.bStrongMagnetic>=MAX_STE_OFF_TIMES) \
-	|| sysData.lockReason.bits.bSeverOff || sysData.lockReason.bits.bNoNetwork || sysData.lockReason.bits.bBalance){
+	|| sysData.lockReason.bits.bSeverOff || sysData.lockReason.bits.bNoNetwork || sysData.lockReason.bits.bBalance \
+	|| sysData.lockReason.bits.bShellOpen ){
 		//m_lcd_disp_str((uint8_t*)"   hold");
 		if(sysData.lockReason.bits.bNoflow>=tmtry && tmtry!=0){m_lcd_disp_str((uint8_t*)"nf-loc ");}
 		else if(sysData.lockReason.bits.bStrongMagnetic>=MAX_STE_OFF_TIMES){
@@ -1015,6 +1020,7 @@ void ui_disp_off(void)
         else if(sysData.lockReason.bits.bSeverOff){m_lcd_disp_str((uint8_t*)"se-loc ");}
 		else if(sysData.lockReason.bits.bNoNetwork){m_lcd_disp_str((uint8_t*)"nc-loc ");}
 		else if(sysData.lockReason.bits.bBalance){m_lcd_disp_str((uint8_t*)"ng-loc ");}
+		else if(sysData.lockReason.bits.bShellOpen){m_lcd_disp_str((uint8_t*)"sh-loc ");}
 	}else{
 		ui_disp_off_reason();
 	}	

@@ -67,11 +67,7 @@ void m_flow_record_init(void)
 
 void m_flow_data_init(void)
 {
-	
 	lastDayMaxFlow=0x00UL;
-	//realHourAvgFlow=0x00UL;
-	//realFlow=0x00UL;	
-
 	switch(sysData.QN){
 		case QN16:	flowQn=160;		maxFlow=250*12/10;break;
 		case QN25:	flowQn=250;		maxFlow=400*12/10;break;
@@ -117,10 +113,9 @@ uint16_t m_flow_hight_flow_protect(uint32_t pulse)
 	
 	if(vavleState!=VALVE_ON){return 0;}
 	
+	
 	if(!(sysData.HightFlowProtectEn)){
-		//nowDevStatus.bits.bQcFlowHi=0;
 		sysData.devStatus.bits.bQcFlowHi=0;
-		//lockReason.bits.bHifhtFlow=0;
 		return 0;
 	}	
 	
@@ -134,7 +129,10 @@ uint16_t m_flow_hight_flow_protect(uint32_t pulse)
 	flow=pulse*3600UL/t32;
 	flow=flow*100UL/sysData.QS;
 	
-	if(flow>=maxFlow){
+	
+	//maxFlow=600*12/10;
+	if(flow>=720){
+	//if(flow>=maxFlow){
 		sysData.devStatus.bits.bQcFlowHi=1;
 		vavle_off_from_app(OFF_REASON_HIGHT_GAS_FLOW);
 		//lockReason.bits.bHifhtFlow=1;		

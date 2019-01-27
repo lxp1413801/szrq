@@ -117,8 +117,13 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
+          <Key>DLGDARM</Key>
+          <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)</Name>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
           <Key>JL2CM3</Key>
-          <Name>-U59425868 -O2246 -S2 -ZTIFSpeedSel5000 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(0BC11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO15 -FD20000000 -FC1000 -FN2 -FF0STM32L0xx_192.FLM -FS08000000 -FL030000 -FP0($$Device:STM32L073RZTx$CMSIS\Flash\STM32L0xx_192.FLM) -FF1STM32L0xx_OPT.FLM -FS11FF80000 -FL114 -FP1($$Device:STM32L073RZTx$CMSIS\Flash\STM32L0xx_OPT.FLM)</Name>
+          <Name>-U99999993 -O2246 -S5 -ZTIFSpeedSel1000 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(0BC11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO15 -FD20000000 -FC1000 -FN1 -FF0STM32L0xx_192.FLM -FS08000000 -FL030000 -FP0($$Device:STM32L073RZTx$CMSIS\Flash\STM32L0xx_192.FLM)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -138,7 +143,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>ARMDBGFLAGS</Key>
-          <Name></Name>
+          <Name>-T0</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -146,24 +151,7 @@
           <Name>-UAny -O2246 -S0 -C0 -P00 -N00("ARM CoreSight SW-DP") -D00(0BC11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO15 -FD20000000 -FC1000 -FN1 -FF0STM32L0xx_192.FLM -FS08000000 -FL030000 -FP0($$Device:STM32L073RZTx$CMSIS\Flash\STM32L0xx_192.FLM)</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>1465</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134271274</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>D:\娣卞湷鐕冩皵瀹氬埗\娣卞湷鐕冩皵瀹氬埗\SZRQ redo\18a-STM32L0XX-MTK\src\api\ui.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\18A_freeRTos_stm32l0xx_lpw_demo\src/api/ui.c\1465</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>
@@ -229,6 +217,11 @@
           <count>12</count>
           <WinNumber>1</WinNumber>
           <ItemText>totalVolume,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>13</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>t32</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>

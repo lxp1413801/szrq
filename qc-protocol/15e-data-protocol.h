@@ -137,6 +137,7 @@
 		OFF_REASON_CZSN_WARNING,
 		//for szrq
 		OFF_REASON_TEMP,
+		OFF_REASON_SHELL_OPEN,
 	}emVavleOffReason_t;
 	
 	//even set
@@ -201,6 +202,7 @@
 			uint32_t bSeverOff:1;
 			uint32_t bNoNetwork:1;
 			uint32_t bBalance:1;
+			uint32_t bShellOpen:1;
 		}bits;
 	}stlockReasonBits_t;	
 

@@ -54,7 +54,8 @@ const stDeviceInf_t sysDataDefault={
 	pro_VER_NUM,				//uint16_t	ProtocolVer;
 	0x00,						//uint16_t	rverse01;
 	{0x18,0x08,0x08,0x00},		//uint8_t		PD[4];
-	"CDQC181100000002",			//uint8_t		commSN[16];				
+	//"CDQC181100000002",			//uint8_t		commSN[16];	
+	"         9225002",
 	{0},						//uint8_t		DeviceName[16];			//设备名称或者型号	
 
 	//	//配置信息，与设备本身参数有关

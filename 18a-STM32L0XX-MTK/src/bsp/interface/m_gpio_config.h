@@ -311,6 +311,14 @@
 		#define NB_MTK_RST_PIN	(uint32_t)(GPIO_PIN_15)
 		#define NB_MTK_RST_PORT	GPIOA
 		
+		//<<--add for open the shell
+		#define SHELL_OPNE_DEC_PIN	(uint32_t)(GPIO_PIN_2)
+		#define SHELL_OPNE_DEC_PORT	GPIOD
+		#define m_shell_open_rcc_enable() __HAL_RCC_GPIOD_CLK_ENABLE()
+		#define m_shell_open_rcc_disable() __HAL_RCC_GPIOD_CLK_DISABLE()	
+		extern void m_gpio_config_shell_open(void);
+		//-->>
+		
 	#ifdef __cplusplus
 	}
 	#endif
