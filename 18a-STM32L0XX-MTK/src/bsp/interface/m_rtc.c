@@ -283,7 +283,7 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 	mSoftWdgTimes++;
 	sysTickerSec++;
 	stampTickerSec++;
-	userTickerSec++;
+
 	if(mSoftWdgTimes>=120){mcu_error_reset();}
 	if((void*)vTheadEvenID){
 		osSignalSet( vTheadEvenID, flg_EVENT_RTC_WAKE_UP);

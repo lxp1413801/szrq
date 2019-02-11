@@ -40,6 +40,4 @@
 .\objects\m_lcd_hal.o: .\src\bsp\stm32l0xx\./inc/stm32l0xx_hal_uart_ex.h
 .\objects\m_lcd_hal.o: src\bsp\interface\m_lcd_hal.h
 .\objects\m_lcd_hal.o: src\bsp\interface\m_lcd.h
-.\objects\m_lcd_hal.o: src\bsp\interface\../../configs/user_configs.h
-.\objects\m_lcd_hal.o: src\bsp\interface\../../configs/subversion.h
-.\objects\m_lcd_hal.o: src\bsp\interface\../../configs/qndef.h
+.\objects\m_lcd_hal.o: src\bsp\interface\m_gpio_config.h

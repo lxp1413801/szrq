@@ -19,22 +19,8 @@ void m_adc_error_handler(void)
 	}
 }
 
-void m_gpio_config_adcin11(void)
-{
-	GPIO_InitTypeDef          GPIO_InitStruct={0};
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	__HAL_RCC_GPIOC_CLK_ENABLE();
-	GPIO_InitStruct.Pin = GPIO_PIN_1;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;	
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-	
-	GPIO_InitStruct.Pin = GPIO_PIN_4;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;	
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);	
-	
-}
+
+
 void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 {
 	/* ADC1 Periph clock enable */

@@ -140,11 +140,13 @@ void HAL_IncTick(void)
 }
 extern void uart4_idle_time_hook(void);
 extern void ir_idle_time_hook(void);
+extern void lpusart1_idle_time_hook(void);
 void SysTick_Handler(void)
 {
 
 	HAL_IncTick();
-	uart4_idle_time_hook();
+	//uart4_idle_time_hook();
+	lpusart1_idle_time_hook();
 	ir_idle_time_hook();
 	osSystickHandler();
 	//add by lxp
@@ -178,6 +180,13 @@ void USART1_IRQHandler(void)
 	HAL_UART_IRQHandler(&UartHandle);
 	vPortExitCritical();
 }
+void LPUSART1_IRQHandler(void)
+{
+	vPortEnterCritical();
+	HAL_UART_IRQHandler(&UartHandle);
+	vPortExitCritical();
+}
+
 /******************************************************************************/
 /*                 STM32L0xx Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */

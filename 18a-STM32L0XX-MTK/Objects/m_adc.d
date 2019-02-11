@@ -66,8 +66,5 @@
 .\objects\m_adc.o: src\bsp\interface\m_rng.h
 .\objects\m_adc.o: src\bsp\interface\m_lcd_hal.h
 .\objects\m_adc.o: src\bsp\interface\m_lcd.h
-.\objects\m_adc.o: src\bsp\interface\../../configs/user_configs.h
-.\objects\m_adc.o: src\bsp\interface\../../configs/subversion.h
-.\objects\m_adc.o: src\bsp\interface\../../configs/qndef.h
 .\objects\m_adc.o: src\bsp\interface\m_buzzer.h
 .\objects\m_adc.o: src\bsp\interface\m_timer.h

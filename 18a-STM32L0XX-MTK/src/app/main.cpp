@@ -120,16 +120,11 @@ void pre_star_thread_main_01(void)
 	m_gpio_config_alarm_dect();
 	m_gpio_config_alarm();
 	m_gpio_config_ste();
-	#ifdef STM32L073xx
-		m_gpio_exti4_15_enable();	
-	#elif defined(STM32L152xB)
-		m_gpio_exti9_5_enable();
-	#endif	
-	m_gpio_decanti_config();
-	//decanti_strong_pull_up_release();
+	
+	m_gpio_config_ain_leak_disable();
 	
 	m_gpio_exti2_3_enable();
-
+	m_gpio_exti4_15_enable();	
 }
 
 void vTheadMain(void * pvParameters)
@@ -159,6 +154,9 @@ void vTheadMain(void * pvParameters)
 	uint8_t bkMenu,bkSubMenu;
 	bkMenu=menu;
 	bkSubMenu=subMenu;
+	
+	m_gpio_ir_rx_pwr_on();
+	while(1);
 	while(1){
 		event=osSignalWait(flg_MAIN_THREAD_ALL_BITS,osWaitForever);
 		//osDelay(100);
@@ -198,6 +196,7 @@ void m_thread_create_main(void)
 int main(void)
 {
 	//HAL_Init();
+	//while(1);
 	#ifdef STM32L152xB
 		m_clock_config_hsi();
 	#else

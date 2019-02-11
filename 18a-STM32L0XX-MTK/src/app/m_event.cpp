@@ -17,9 +17,11 @@ uint32_t noEventTimeOut=NO_EVEN_MAX_TIME_OUT;
 
 TaskHandle_t vTheadEvenID=(osThreadId)NULL;
 TaskHandle_t vTheadFlowPulsID=(osThreadId)NULL;
-uint32_t userTickerSec=0x00L;
+//uint32_t userTickerSec=0x00L;
 uint32_t sysTickerSec=0x00L;
 uint32_t stampTickerSec=0x00L;
+
+uint32_t globleTickerSec=0;
 
 uint32_t payPromptTimeOut=0x00ul;
 #if SEND_TIMES_TEST
@@ -141,7 +143,10 @@ void vavle_off_from_app(uint8_t reson)
 			}
 		}
 	}else {
-		if((vavleState==VALVE_OFF && VavleOffReason!=reson) || (vavleState == VALVE_ON)){
+		if(reson==OFF_REASON_SHELL_OPEN && vavleState==VALVE_OFF){
+			
+		}
+		else if((vavleState==VALVE_OFF && VavleOffReason!=reson) || (vavleState == VALVE_ON)){
 			fiOff=1;
 		}			
 	}
@@ -463,7 +468,7 @@ void event_key_down_process(void)
 		event_key_down_process_menu_change();
 
 	}while(0);
-	ui_disp_menu(userTickerSec);
+	ui_disp_menu(globleTickerSec);
 	m_gpio_config_key0_irq_re_enable();
 }
 
@@ -756,6 +761,7 @@ uint16_t get_minute_in_day(void)
 void event_rtc_process_sec(void)
 {
 	volatile uint32_t tm=0x00;
+	globleTickerSec++;
 	//userTickerSec++;
 	if(noEventTimeOut)noEventTimeOut--;
 	if(payPromptTimeOut)payPromptTimeOut--;
@@ -771,7 +777,7 @@ void event_rtc_process_sec(void)
 		vavleState==VALVE_OFF || sysData.devStatus.bits.bBalanceSta \
 		|| pwrStatus!=POWER_STATUS_NORMAL){
 		m_lcd_enable();
-		ui_disp_menu(userTickerSec);
+		ui_disp_menu(globleTickerSec);
 
 	}else{
 		m_lcd_disable();
@@ -794,6 +800,7 @@ bool shellOpened=false;
 void event_shell_open_process(void)
 {
 	m_shell_open_rcc_enable();
+	//m_gpio_config_shell_open();
 	if(m_gpio_read(SHELL_OPNE_DEC_PORT,SHELL_OPNE_DEC_PIN)){
 		//osDelay(20)
 		//shellOpened=true;

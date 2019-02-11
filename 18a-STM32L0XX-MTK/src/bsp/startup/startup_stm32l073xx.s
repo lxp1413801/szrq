@@ -73,6 +73,7 @@ __heap_limit
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
 				import m_timer_2_irqhandler
+				import LPUSART1_IRQHandler
 				;import TIM2_IRQHandler
 __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     Reset_Handler             ; Reset Handler
@@ -121,7 +122,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     SPI2_IRQHandler                ; SPI2
                 DCD     USART1_IRQHandler              ; USART1
                 DCD     USART2_IRQHandler              ; USART2
-                DCD     RNG_LPUART1_IRQHandler         ; RNG and LPUART1
+                DCD     LPUSART1_IRQHandler;//RNG_LPUART1_IRQHandler         ; RNG and LPUART1
                 DCD     LCD_IRQHandler                 ; LCD
                 DCD     USB_IRQHandler                 ; USB
                 

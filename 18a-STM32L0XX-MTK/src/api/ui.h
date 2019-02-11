@@ -4,6 +4,14 @@
 extern "C"{
 #endif
 	//extern uint8_t menu;
+	#include <stdint.h>
+	typedef struct{
+		uint32_t 	significand;	
+		uint8_t 	exponent;		
+		uint8_t 	sign;			
+	}uiFloat32_t;
+	
+	
 	#include "stdint.h"
 	#define MENU_MAIN_HOME 0x00
 	#define subMENU_MAIN_HOME_NB_ATTACH 0x01

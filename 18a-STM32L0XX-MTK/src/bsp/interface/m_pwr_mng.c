@@ -23,7 +23,7 @@ void m_pre_pre_sleep_processing(void)
 	
 	//m_rtc_disable_wakeup();
 	//m_rtc_enable_wakeup(cfg_RTC_INTERVAL);	
-	m_uart4_deinit();
+	m_lpusart1_deinit();
 	m_gpio_into_lpw();
 }
 
@@ -56,7 +56,7 @@ void m_pre_pre_stop_processing(void)
 	
 	//m_rtc_disable_wakeup();
 	//m_rtc_enable_wakeup(cfg_RTC_INTERVAL);	
-	m_uart4_deinit();
+	m_lpusart1_deinit();
 	m_gpio_into_lpw();
 }
 

@@ -55,6 +55,7 @@ void ADC1_COMP_IRQHandler(void);
 
 void USART1_IRQHandler(void);
 void USART4_5_IRQHandler(void);
+void LPUSART1_IRQHandler(void);
 //add by lxp
 extern uint32_t HAL_GetTick(void);
 extern void HAL_SetTick(uint32_t x);

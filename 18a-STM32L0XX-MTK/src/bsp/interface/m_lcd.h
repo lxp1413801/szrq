@@ -7,10 +7,6 @@
 	#endif
 	/* Includes ------------------------------------------------------------------*/
 	#include "stm32l0xx_hal.h"
-	#include "../../configs/user_configs.h"
-	#ifndef config_USED_ALARM_LCD
-		#error "config_USED_ALARM_LCD must bedefine !!!"
-	#endif 
 	#define __mySfr_LCD_CR (*( ( volatile uint32_t *)0X40002400))
 	#define __mySfr_LCD_SR (*( ( volatile uint32_t *)0X40002400 + 0x0008))
 	/* Define for scrolling sentences*/
@@ -49,16 +45,16 @@
 	*/
 	//What the fuck are you doing, dickhead
 	// for stm32l073xx
-	#define LCD_DSEG_F 0x01
-	#define LCD_DSEG_A 0x02
-	#define LCD_DSEG_G 0x04
-	#define LCD_DSEG_B 0x08
+	#define LCD_DSEG_A 0x80
+	#define LCD_DSEG_F 0x40
+	#define LCD_DSEG_B 0x20
+	#define LCD_DSEG_G 0x10
 	
 	
-	#define LCD_DSEG_E 0x10
-	#define LCD_DSEG_C 0x20
-	#define LCD_DSEG_D 0x40
-	#define LCD_DSEG_DP 0x80
+	#define LCD_DSEG_E 0x08
+	#define LCD_DSEG_C 0x04
+	#define LCD_DSEG_D 0x02
+	//#define LCD_DSEG_DP 0x80
   
 	//#define LCD_DSEG_DP 0x08	
 	#define LCD_SSEG_YUE_A1 0x01
@@ -129,68 +125,90 @@
 	#define LCD_CODE_DOT	(LCD_DSEG_G)
 	#define LCD_CODE_DDOT	(LCD_DSEG_G+LCD_DSEG_D)
 
-
 	
-	#define m_lcd_disp_seg_YUE_A0() m_lcd_disp_seg(0,0);
-	#define m_lcd_clear_seg_YUE_A0() m_lcd_clear_seg(0,0);
-	 
+	#define m_lcd_disp_seg_dp6() __nop();
+	#define m_lcd_disp_seg_dp5() __nop();
+	#define m_lcd_disp_seg_dp4() m_lcd_disp_seg(0,5);
+	#define m_lcd_disp_seg_dp3() m_lcd_disp_seg(0,4);
+	#define m_lcd_disp_seg_dp2() m_lcd_disp_seg(0,7);
+	#define m_lcd_disp_seg_dp1() m_lcd_disp_seg(0,8);
+	#define m_lcd_disp_seg_dp0() __nop();
 	
-			
-	#define m_lcd_disp_seg_YQL_A1() m_lcd_disp_seg(1,0);
-	#define m_lcd_clear_seg_YQL_A1() m_lcd_clear_seg(1,0);
-			
-	#define m_lcd_disp_seg_DJ_B() m_lcd_disp_seg(3,2);
-	#define m_lcd_clear_seg_DJ_B() m_lcd_clear_seg(3,2);
-			
-	#define m_lcd_disp_seg_GYBH_C() m_lcd_disp_seg(2,0);
-	#define m_lcd_clear_seg_GYBH_C() m_lcd_clear_seg(2,0);
-			
-	#define m_lcd_disp_seg_DYBH_D() m_lcd_disp_seg(3,0);
-	#define m_lcd_clear_seg_DYBH_D() m_lcd_clear_seg(3,0);
-
-	#define m_lcd_disp_seg_GLBH_E() m_lcd_disp_seg(3,14);
-	#define m_lcd_clear_seg_GLBH_E() m_lcd_clear_seg(3,14);
-			
-	#define m_lcd_disp_seg_CSBH_F() m_lcd_disp_seg(3,15);
-	#define m_lcd_clear_seg_CSBH_F() m_lcd_clear_seg(3,15);
-			
-	#define m_lcd_disp_seg_QCHB_G() m_lcd_disp_seg(2,15);
-	#define m_lcd_clear_seg_QCBH_G() m_lcd_clear_seg(2,15);
-
-	#define m_lcd_disp_seg_KYC_H() m_lcd_disp_seg(1,15);
-	#define m_lcd_clear_seg_KYC_H() m_lcd_clear_seg(1,15);
-
-	#define m_lcd_disp_seg_QGQ_I() m_lcd_disp_seg(0,15);
-	#define m_lcd_clear_seg_QGQ_I() m_lcd_clear_seg(0,15);
+	#define m_lcd_disp_seg_T21_SY() m_lcd_disp_seg(0,1)
+	#define m_lcd_disp_seg_T17_YUAN() m_lcd_disp_seg(6,11)
+	#define m_lcd_disp_seg_T18_M3() m_lcd_disp_seg(5,11)
 	
-	#if config_USED_ALARM_LCD == 0
-		#define m_lcd_disp_seg_dp2() m_lcd_disp_seg(3,4);
-		#define m_lcd_clear_seg_dp2() m_lcd_clear_seg(3,4);
-				
-		#define m_lcd_disp_seg_dp3() m_lcd_disp_seg(3,6);
-		#define m_lcd_clear_seg_dp3() m_lcd_clear_seg(3,6);
-		
-		#define m_lcd_disp_seg_alarm_conn() __nop();
-		#define m_lcd_disp_seg_alarm_leak() __nop();	
-	#else 
-		#define m_lcd_disp_seg_dp2() __nop();
-		#define m_lcd_clear_seg_dp2() __nop();
-				
-		#define m_lcd_disp_seg_dp3() __nop();
-		#define m_lcd_clear_seg_dp3() __nop();
-		
-		#define m_lcd_disp_seg_alarm_conn() m_lcd_disp_seg(3,4);
-		#define m_lcd_disp_seg_alarm_leak() m_lcd_disp_seg(3,6);
-	#endif
-	#define m_lcd_disp_seg_dp4() m_lcd_disp_seg(3,8);
-	#define m_lcd_clear_seg_dp4() m_lcd_clear_seg(3,8);
-
-	#define m_lcd_disp_seg_dp5() m_lcd_disp_seg(3,10);
-	#define m_lcd_clear_seg_dp5() m_lcd_clear_seg(3,10);
 	
+	#define m_lcd_disp_seg_LJ_T20() m_lcd_disp_seg(0,0);
+	#define m_lcd_disp_seg_QJ_T19() m_lcd_disp_seg(1,0);
+	#define m_lcd_disp_seg_KG_T1()	m_lcd_disp_seg(2,0);
+	#define m_lcd_disp_seg_QF_T2() m_lcd_disp_seg(3,0);
+	#define m_lcd_disp_seg_GR_T3() m_lcd_disp_seg(4,0);
+	#define m_lcd_disp_seg_QCZ_T4() m_lcd_disp_seg(5,0);
+	#define m_lcd_disp_seg_ID_T5() m_lcd_disp_seg(6,0);
 
-	#define m_lcd_disp_seg_dp6() m_lcd_disp_seg(3,12);
-	#define m_lcd_clear_seg_dp6() m_lcd_clear_seg(3,12);
+	#define m_lcd_disp_seg_YC_T6() m_lcd_disp_seg(7,0);
+	#define m_lcd_disp_seg_CGR_T16() m_lcd_disp_seg(7,11);
+	#define m_lcd_disp_seg_FG_T15() m_lcd_disp_seg(7,10);
+	#define m_lcd_disp_seg_FK_T14() m_lcd_disp_seg(6,10);
+	#define m_lcd_disp_seg_MLC_T13() m_lcd_disp_seg(5,10);
+	#define m_lcd_disp_seg_DKZ_T12() m_lcd_disp_seg(4,10);
+	
+	#define m_lcd_disp_seg_OCLOCL_DOT_S5() m_lcd_disp_seg(0,3);
+	#define m_lcd_disp_seg_OCLOCL_DOT_S6() m_lcd_disp_seg(0,6);
+	
+	#define m_lcd_disp_seg_oclock() do{m_lcd_disp_seg_OCLOCL_DOT_S5();m_lcd_disp_seg_OCLOCL_DOT_S6();}while(0);
+	
+	
+	//T2สฃำเ+T17ิช
+	#define m_lcd_disp_seg_yue() 			do{m_lcd_disp_seg_T21_SY();m_lcd_disp_seg_T17_YUAN();}while(0);
+	#define m_lcd_disp_seg_balance_m()		m_lcd_disp_seg_yue();
+	//T2สฃำเ+T18 m3
+	#define m_lcd_disp_seg_yql() 			do{m_lcd_disp_seg_T21_SY();m_lcd_disp_seg_T18_M3();}while(0);
+	#define m_lcd_disp_seg_balance_vol()	m_lcd_disp_seg_yql();
+	#define m_lcd_disp_seg_total_vol()		do{m_lcd_disp_seg_LJ_T20();m_lcd_disp_seg_T18_M3();}while(0);
+	#define m_lcd_disp_seg_total_m()	do{m_lcd_disp_seg_LJ_T20();m_lcd_disp_seg_T17_YUAN();}while(0);
+	#define m_lcd_disp_seg_total_v()	do{m_lcd_disp_seg_LJ_T20();m_lcd_disp_seg_T18_M3();}while(0);
+	
+	#define m_lcd_disp_seg_price()			do{m_lcd_disp_seg_QJ_T19();m_lcd_disp_seg_T17_YUAN();}while(0);
+	#define m_lcd_disp_seg_open_shell()		do{m_lcd_disp_seg_KG_T1();}while(0);
+	#define m_lcd_disp_seg_owe() 		do{m_lcd_disp_seg_QF_T2();}while(0);
+	#define m_lcd_disp_seg_current_buy_m()	do{m_lcd_disp_seg_GR_T3();m_lcd_disp_seg_T17_YUAN();}while(0);
+	#define m_lcd_disp_seg_current_buy_V() 	do{m_lcd_disp_seg_GR_T3();m_lcd_disp_seg_T18_M3();}while(0);
+	
+	#define m_lcd_disp_seg_total_buy_m()	do{m_lcd_disp_seg_LJ_T20();m_lcd_disp_seg_GR_T3();m_lcd_disp_seg_T17_YUAN();}while(0);
+	#define m_lcd_disp_seg_total_buy_V() 	do{m_lcd_disp_seg_LJ_T20();m_lcd_disp_seg_GR_T3();m_lcd_disp_seg_T18_M3();}while(0);	
+	
+	#define m_lcd_disp_seg_pls_recharge()	do{m_lcd_disp_seg_QCZ_T4();}while(0);
+	#define m_lcd_disp_seg_device_id()		do{m_lcd_disp_seg_ID_T5();}while(0);
+	
+	#define m_lcd_disp_seg_fault()			do{m_lcd_disp_seg_YC_T6();}while(0);
+	#define m_lcd_disp_seg_ste()			do{m_lcd_disp_seg_CGR_T16();}while(0);
+	
+	#define m_lcd_disp_seg_valve_open()		do{m_lcd_disp_seg_FK_T14();}while(0);
+	#define m_lcd_disp_seg_valve_close()	do{m_lcd_disp_seg_FG_T15();}while(0);
+	
+	#define m_lcd_disp_seg_cmd_error()		do{m_lcd_disp_seg_MLC_T13();}while(0);
+	#define m_lcd_disp_seg_reading()		do{m_lcd_disp_seg_DKZ_T12();}while(0);
+	
+	#define m_lcd_disp_seg_DJ_B() __nop();
+	#define m_lcd_disp_seg_DYBH_D() __nop();
+	#define m_lcd_disp_seg_GYBH_C() __nop();
+	#define m_lcd_disp_seg_QCHB_G() m_lcd_disp_seg(6,10);
+	#define m_lcd_disp_seg_CSBH_F() __nop();
+	
+	#define m_lcd_disp_seg_rssi_0() m_lcd_disp_seg(2,10);	
+	#define m_lcd_disp_seg_rssi_1() m_lcd_disp_seg(1,10);	
+	#define m_lcd_disp_seg_rssi_2() m_lcd_disp_seg(0,10);	
+	#define m_lcd_disp_seg_rssi_3() m_lcd_disp_seg(0,2);	
+	
+	
+	#define m_lcd_disp_bat_level0() m_lcd_disp_seg(7,9);
+	#define m_lcd_disp_bat_level1() m_lcd_disp_seg(4,9);
+	#define m_lcd_disp_bat_level2() m_lcd_disp_seg(5,9);
+	#define m_lcd_disp_bat_level3() m_lcd_disp_seg(6,9);
+	#define m_lcd_disp_bat_level4() m_lcd_disp_seg(3,9);
+	#define m_lcd_disp_bat_level5() m_lcd_disp_seg(2,9);
 	
 	#define m_lcd_off() __HAL_LCD_DISABLE(&LCDHandle);
 	#define m_lcd_on() __HAL_LCD_ENABLE(&LCDHandle);

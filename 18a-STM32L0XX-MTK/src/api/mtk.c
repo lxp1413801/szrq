@@ -55,7 +55,7 @@ int16_t mtk_at_cmd(uint8_t* cmd,uint8_t* expResp,uint8_t* rbuf,uint16_t ssize,ui
 	if(!rbuf)return 0;
 	mtk_disable_sleep();
 	m_mem_set(rbuf,'\0',ssize);
-	if(cmd)m_uart_send_str(cmd);
+	if(cmd)m_lpusart1_send_str(cmd);
 	tmSec=mtk_time_ms_2_s(tm);
 	for(i=0;i<tmSec;i++){
 		if(pwrStatus==POWER_STATUS_DOWN){ret=-1;break;};
@@ -86,9 +86,9 @@ int16_t mtk_at_cmd(uint8_t* cmd,uint8_t* expResp,uint8_t* rbuf,uint16_t ssize,ui
 		}
 		if(event.value.signals & flg_NB_MODULE_UART_RECEIVED_ERROR){
 			ret=0;
-			m_uart4_deinit();
+			m_lpusart1_deinit();
 			osDelay(200);
-			m_uart4_init(9600);
+			m_lpusart1_init(9600);
 			__nop();			
 		}
 	}
@@ -625,20 +625,20 @@ int16_t bc26_hal_power_on(void)
 	osDelay(500);
 	m_gpio_set_mode(NB_MTK_PWR_PORT,NB_MTK_PWR_PIN,GPIO_MODE_INPUT);
 	osDelay(200);
-	m_uart4_deinit();
+	m_lpusart1_deinit();
 	osDelay(200);
-	m_uart4_init(9600);		
+	m_lpusart1_init(9600);		
 	for(i=0;i<3;i++){
 		ret=mtk_at_cmd((uint8_t*)"AT\r\n",(uint8_t*)"OK",recbuf,reclen,1*configTICK_RATE_HZ);
 		if(ret)break;
 		if(ret<0)return ret;
 		osDelay(1*configTICK_RATE_HZ);
 	}
-	
+	/*
 	if(ret==0){
-		m_uart4_deinit();
+		m_lpusart1_deinit();
 		osDelay(200);
-		m_uart4_init(115200);	
+		m_lpusart1_init(115200);	
 		for(i=0;i<3;i++){
 			ret=mtk_at_cmd((uint8_t*)"AT+IPR=9600\r\n",(uint8_t*)"OK",recbuf,reclen,1*configTICK_RATE_HZ);
 			if(ret)break;
@@ -657,12 +657,12 @@ int16_t bc26_hal_power_on(void)
 		}
 		//AT+QRST=1
 		osDelay(200);
-		m_uart4_deinit();
+		m_lpusart1_deinit();
 		osDelay(200);
-		m_uart4_init(9600);		
+		m_lpusart1_init(9600);		
 		return 0;
 	}
-	
+	*/
 	//mtk_at_cmd((uint8_t*)"AT+CFUN=0\r\n",(uint8_t*)"OK",recbuf,reclen,2*configTICK_RATE_HZ);
 	mtk_at_cmd((uint8_t*)"AT+QBAND=1,8\r\n",(uint8_t*)"OK",recbuf,reclen,2*configTICK_RATE_HZ);
 	//mtk_at_cmd((uint8_t*)"AT+CFUN=1\r\n",(uint8_t*)"OK",recbuf,reclen,2*configTICK_RATE_HZ);
@@ -699,25 +699,27 @@ int16_t bc26_hal_power_off(void)
 	int16_t ret;
 	mtk_disable_sleep();
 	
-	m_uart4_deinit();
+	m_lpusart1_deinit();
 	osDelay(200);
-	m_uart4_init(9600);	
+	m_lpusart1_init(9600);	
 	for(i=0;i<3;i++){
 		ret=mtk_at_cmd((uint8_t*)"AT\r\n",(uint8_t*)"OK",recbuf,reclen,1*configTICK_RATE_HZ);
 		if(ret)break;
 	}	
+	/*
 	if(i>=3){
-		m_uart4_deinit();
+		m_lpusart1_deinit();
 		osDelay(200);
-		m_uart4_init(115200);	
+		m_lpusart1_init(115200);	
 		for(i=0;i<2;i++){
 			ret=mtk_at_cmd((uint8_t*)"AT+IPR=9600\r\n",(uint8_t*)"OK",recbuf,reclen,1*configTICK_RATE_HZ);
 			if(ret)break;
 		}
-		m_uart4_deinit();
+		m_lpusart1_deinit();
 		osDelay(200);
-		m_uart4_init(9600);			
+		m_lpusart1_init(9600);			
 	}
+	*/
 	mtk_at_cmd((uint8_t*)"AT+QICLOSE=0\r\n",(uint8_t*)"OK",recbuf,reclen,2*configTICK_RATE_HZ);
 	for(i=0;i<3;i++){
 		ret=mtk_at_cmd((uint8_t*)"AT+QPOWD=0\r\n",(uint8_t*)"OK",recbuf,reclen,1*configTICK_RATE_HZ);
@@ -960,23 +962,23 @@ int16_t bc26_register_iot(void)
 		*/
 		if(port<1000 || port>3000)port=1001;
 		if(sysData.severRelease.ip[0]!=0){
-			m_uart_send_str((uint8_t*)"AT+QIOPEN=1,0,UDP,");
+			m_lpusart1_send_str((uint8_t*)"AT+QIOPEN=1,0,UDP,");
 			ipv4_bin_to_str(tmpbuf,sysData.severRelease.ip);
-			m_uart_send_str(tmpbuf);
-			m_uart4_send_byte_poll(',');
+			m_lpusart1_send_str(tmpbuf);
+			m_lpusart1_send_byte_poll(',');
 			ret=m_int_2_str_ex(tmpbuf,sysData.severRelease.port,7);
-			m_uart_send_str(tmpbuf);
-			m_uart4_send_byte_poll(',');
+			m_lpusart1_send_str(tmpbuf);
+			m_lpusart1_send_byte_poll(',');
 			ret=m_int_2_str_ex(tmpbuf,port,7);
-			m_uart_send_str(tmpbuf);
-			m_uart_send_str((uint8_t*)",0\r\n");
+			m_lpusart1_send_str(tmpbuf);
+			m_lpusart1_send_str((uint8_t*)",0\r\n");
 			//m_uart_send_str("uint")
 		}else{
-			m_uart_send_str((uint8_t*)"AT+QIOPEN=1,0,UDP,218.17.114.5,7701,");	
+			m_lpusart1_send_str((uint8_t*)"AT+QIOPEN=1,0,UDP,218.17.114.5,7701,");	
 			ret=m_int_2_str_ex(tmpbuf,port,7);	
-			m_uart_send_str(tmpbuf);	
+			m_lpusart1_send_str(tmpbuf);	
 			//,1\r\n"
-			m_uart_send_str((uint8_t*)",0\r\n");
+			m_lpusart1_send_str((uint8_t*)",0\r\n");
 		}
 		ret=mtk_at_cmd(NULL,(uint8_t*)"OK",recbuf,reclen,2*configTICK_RATE_HZ);
 		port++;
@@ -1138,22 +1140,22 @@ int16_t bc26_send_process(uint8_t* sbuf,uint16_t slen)
 	//ret=bc26_register_iot();
 	//if(ret<=0)return ret;
 	
-	m_uart_send_str((uint8_t*)"AT+QISENDEX=0,");
+	m_lpusart1_send_str((uint8_t*)"AT+QISENDEX=0,");
 	if(slen>500)slen=500;
 	ret=m_int_2_str_ex(tmpbuf,slen,7);
 	tmpbuf[ret-1]=',';
 	tmpbuf[ret]='\0';
-	m_uart_send_str(tmpbuf);
+	m_lpusart1_send_str(tmpbuf);
 	for(i=0;i<slen;i++)
 	{
 		mtk_disable_sleep();
 		t8=sbuf[i];
 		chr=HexTable[(t8&0xf0)>>4];
-		m_uart4_send_byte_poll(chr);
+		m_lpusart1_send_byte_poll(chr);
 		chr=HexTable[(t8&0x0f)];
-		m_uart4_send_byte_poll(chr);
+		m_lpusart1_send_byte_poll(chr);
 	}
-	m_uart_send_str((uint8_t*)"\r\n");
+	m_lpusart1_send_str((uint8_t*)"\r\n");
 	ret=mtk_at_cmd(NULL,(uint8_t*)"OK",recbuf,reclen,2*configTICK_RATE_HZ);
 	return ret;	
 }
@@ -1168,9 +1170,9 @@ int16_t bc26_send_ready(void)
 	subMenu=subMENU_MAIN_HOME_NB_ATTACH;	
 	ui_disp_menu(0);		
 	
-	m_uart4_deinit();
+	m_lpusart1_deinit();
 	osDelay(200);
-	m_uart4_init(9600);	
+	m_lpusart1_init(9600);	
 	//
 	tm=osKernelSysTick();
 	while(1){

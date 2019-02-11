@@ -9,8 +9,8 @@ void app_valve_off(void)
 	//if(vavleState==VALVE_OFF || vavleState==VALVE_OPERATION_OFF)return;
 	vavleState=VALVE_OPERATION_OFF;
 
-    lcd_clear_all();
-    m_lcd_disp_str_refresh(__xT("Off--"));   
+    //lcd_clear_all();
+    //m_lcd_disp_str_refresh(__xT("Off--"));   
 
 	api_sysdata_save();
 	//m_flow_data_init();

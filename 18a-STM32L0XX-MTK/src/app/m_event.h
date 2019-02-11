@@ -20,9 +20,11 @@ extern "C"{
 	| flg_EVENT_FLW_FALLING | flg_EVENT_RTC_WAKE_UP | flg_EVENT_UNLOCK_ON \
 	| flg_EVENT_DAY_CHANGE | flg_EVENT_ALARM_FALLING | flg_EVENT_IR_RECEIVED)
 	
-	extern uint32_t userTickerSec;
+	//extern uint32_t userTickerSec;
+	
 	extern uint32_t sysTickerSec;
 	extern uint32_t stampTickerSec;
+	extern uint32_t globleTickerSec;
 	
 	extern uint32_t noEventTimeOut;
 

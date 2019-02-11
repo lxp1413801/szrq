@@ -28,18 +28,21 @@ void ir_received_ready(void)
 	irTimeOut=0;
 	irRecevedByte=0;
 	irSampleTimes=0;
-	m_gpio_ir_pwr_config();
-	m_gpio_ir_pwr_on();
+	//m_gpio_ir_pwr_config();
+	//m_gpio_ir_pwr_on();
+	m_gpio_ir_rx_pwr_on();
 	osDelay(10);
-	m_gpio_ir_sig_comfig();
-	m_gpio_ir_sig_irq_enanle();
+	m_gpio_config_ir_rx_config();
+	m_gpio_ir_rx_irq_enanle();
 }
+
 void ir_disable(void)
 {
 	m_timer_deinit();
-	m_gpio_ir_sig_irq_disanle();
-	m_gpio_ir_pwr_off();
+	m_gpio_ir_rx_irq_disanle();
+	m_gpio_ir_rx_pwr_off();
 }
+
 void m_timer_error_handler(void)
 {
 	__nop();
@@ -90,7 +93,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	irSampleTimes++;
 	if(irSampleTimes==1){
 
-		if(m_gpio_read(IR_SIG_PORT,IR_SIG_PIN)){
+		if(m_gpio_read(IR_RX_PORT,IR_RX_PIN)){
 			//error
 		}else{
 			irdata=0x00;
@@ -99,28 +102,28 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		
 		if(irSampleTimes & 0x01){
 			irdata>>=1;
-			t32=m_gpio_read(IR_SIG_PORT,IR_SIG_PIN);
+			t32=m_gpio_read(IR_RX_PORT,IR_RX_PIN);
 			//过采样
 			__x_delay_30us();
-			t32 |= m_gpio_read(IR_SIG_PORT,IR_SIG_PIN);
+			t32 |= m_gpio_read(IR_RX_PORT,IR_RX_PIN);
 			__x_delay_30us();
-			t32 |= m_gpio_read(IR_SIG_PORT,IR_SIG_PIN);
+			t32 |= m_gpio_read(IR_RX_PORT,IR_RX_PIN);
 			__x_delay_30us();
-			t32 |= m_gpio_read(IR_SIG_PORT,IR_SIG_PIN);			
+			t32 |= m_gpio_read(IR_RX_PORT,IR_RX_PIN);			
 			if(t32)irdata |= 0x80;
 		}
 	}else if(irSampleTimes==20){
 		//irTimeOut=0;
 		m_timer_deinit();
-		m_gpio_ir_sig_irq_enanle();
-		t32=m_gpio_read(IR_SIG_PORT,IR_SIG_PIN);
+		m_gpio_ir_rx_irq_enanle();
+		t32=m_gpio_read(IR_RX_PORT,IR_RX_PIN);
 		//过采样
 		__x_delay_30us();
-		t32 |= m_gpio_read(IR_SIG_PORT,IR_SIG_PIN);
+		t32 |= m_gpio_read(IR_RX_PORT,IR_RX_PIN);
 		__x_delay_30us();
-		t32 |= m_gpio_read(IR_SIG_PORT,IR_SIG_PIN);
+		t32 |= m_gpio_read(IR_RX_PORT,IR_RX_PIN);
 		__x_delay_30us();
-		t32 |= m_gpio_read(IR_SIG_PORT,IR_SIG_PIN);		
+		t32 |= m_gpio_read(IR_RX_PORT,IR_RX_PIN);		
 		if(t32){
 			if(irRecevedByte<IR_BUFFER_LEN){
 				irRecevedBuf[irRecevedByte]=irdata;
