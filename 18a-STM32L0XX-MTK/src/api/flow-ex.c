@@ -131,11 +131,15 @@ uint16_t m_flow_hight_flow_protect(uint32_t pulse)
 	
 	
 	//maxFlow=600*12/10;
-	if(flow>=720){
-	//if(flow>=maxFlow){
+	//if(flow>=720){
+	if(flow>=maxFlow){
 		sysData.devStatus.bits.bQcFlowHi=1;
 		vavle_off_from_app(OFF_REASON_HIGHT_GAS_FLOW);
 		//lockReason.bits.bHifhtFlow=1;		
+		if(!overFlowFlgforSendWarning){
+			overFlowFlgforSendWarning=true;
+			osSignalSet( vTheadEvenID, flg_EVENT_HI_FLOW);
+		}
 	}else{
 		sysData.devStatus.bits.bQcFlowHi=0;
 	}

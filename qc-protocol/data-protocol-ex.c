@@ -99,7 +99,14 @@ overageVMState_t __hal_cal_warning_off(void)
 		}
 		return ov;
 	}
-	
+	//修正几个告警的范围
+	if(sysData.warnSetOverageVM<sysData.offSetOverageVM){
+		sysData.warnSetOverageVM=default_WARNING_VOLUMING;
+		sysData.offSetOverageVM=0L;
+	}
+	if(sysData.warnOffSetOverageVM<sysData.offSetOverageVM || sysData.warnOffSetOverageVM>sysData.warnSetOverageVM){
+		sysData.warnOffSetOverageVM=(sysData.offSetOverageVM + sysData.warnSetOverageVM)/2;
+	}
 	if(t32<=sysData.offSetOverageVM){
 		ov=OV_OFF;
 	}else if(t32<=sysData.warnOffSetOverageVM){
@@ -111,34 +118,77 @@ overageVMState_t __hal_cal_warning_off(void)
 	return ov;	
 }
 
-//overageVMState_t preOvSta=OV_NORMAL;
-//overageVMState_t nowOvSta=OV_NORMAL;
+bool fi_szrq_balance_temp_off_vavle_close_en(void)
+{
+	//在报警和关阀值中间的提示关阀
+	bool ret=false;
+	__szrq_valveCtrlByte_t szrqVctrl;
+	szrqVctrl.t8=sysData.szrqValveCtrlByte ;
+	if(szrqVctrl.bits.bBalanceTempOffEn){
+		ret=true;
+	}
+	if(sysData.DLCS<=DLC_STATUS_B){
+		ret=true;
+	}
+	return ret;	
+}
+
+bool fi_szrq_balance_off_vavle_close_en(void)
+{
+	//低于关阀值的关阀
+	bool ret=false;
+	__szrq_valveCtrlByte_t szrqVctrl;
+	szrqVctrl.t8=sysData.szrqValveCtrlByte ;
+	if(szrqVctrl.bits.bBalanceOffEn){
+		ret=true;
+	}
+	if(sysData.DLCS<=DLC_STATUS_B){
+		ret=true;
+	}
+	return ret;		
+}
+
+bool fi_szrq_balance_warn_off_vavle_close_en(void)
+{
+	//低于报警值时的关阀
+	bool ret=false;
+	__szrq_valveCtrlByte_t szrqVctrl;
+	szrqVctrl.t8=sysData.szrqValveCtrlByte ;
+	if(szrqVctrl.bits.bBalanceWarnOffEn){
+		ret=true;
+	}
+	if(sysData.DLCS<=DLC_STATUS_B){
+		ret=false;
+	}
+	return ret;		
+}
 bool __hal_fi_off(overageVMState_t ov)
 {
 	bool ret=false;
 	//nowOvSta=ov;
-	
-	// if((sysData.DWM>DWM_COMMON_MODE) || \
-		// (sysData.DWM==DWM_COMMON_MODE && sysData.DLCS<=DLC_STATUS_B)){
-
 	if(ov==OV_OFF){
 		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_OFF;
 		sysData.lockReason.bits.bBalance=1;
-		ret=true;
+		//ret=true;
+		ret=fi_szrq_balance_off_vavle_close_en();
 	}else if(ov==OV_WARNNING_OFF){
 		sysData.lockReason.bits.bBalance=0;
 		//sysData.lockReason.bits.bBalance=0;
-		if(sysData.devStatus.bits.bWarnOffTime==0){
+		if(sysData.devStatus.bits.bTempOffTime==0){
 			sysData.devStatus.bits.bBalanceSta=OV_WARNNING_OFF;
-			sysData.devStatus.bits.bWarnOffTime=1;
-			ret=true;
-			
+			sysData.devStatus.bits.bTempOffTime=1;
+			//ret=true;
+			ret=fi_szrq_balance_temp_off_vavle_close_en();
 		}
 		
 	}else if(  ov==OV_WARNNING){
 		sysData.lockReason.bits.bBalance=0;
 		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_WARNING;
-		
+		sysData.devStatus.bits.bTempOffTime=0;
+		if(sysData.devStatus.bits.bWarnOffTime==0){
+			sysData.devStatus.bits.bWarnOffTime=1;
+			ret=fi_szrq_balance_warn_off_vavle_close_en();
+		}
 		
 	}else{
 		sysData.lockReason.bits.bBalance=0;
@@ -149,18 +199,23 @@ bool __hal_fi_off(overageVMState_t ov)
 	if(ov!=OV_OFF){
 		sysData.lockReason.bits.bBalance=0;
 	}
+	//后台结算以及抄表模式下不不关阀
+//	if(sysData.DWM==DWM_COMMON_MODE && sysData.DLCS>DLC_STATUS_B){
+//		ret=false;
+//	}
 	return ret;
 }
 
 void __hal_fi_off_redo(overageVMState_t ov)
 {
+	/*
 	if(ov==OV_OFF){
 		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_OFF;
 		sysData.lockReason.bits.bBalance=1;
 		//ret=true;
 	}else if(ov==OV_WARNNING_OFF){
 		sysData.lockReason.bits.bBalance=0;
-		if(sysData.devStatus.bits.bWarnOffTime==0){
+		if(sysData.devStatus.bits.bWarnTempOffTime==0){
 			sysData.devStatus.bits.bBalanceSta=OV_WARNNING_OFF;
 			//sysData.devStatus.bits.bWarnOffTime=1;
 			//ret=true;
@@ -174,9 +229,39 @@ void __hal_fi_off_redo(overageVMState_t ov)
 	}else{
 		sysData.lockReason.bits.bBalance=0;
 		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_NORMAL;
-		sysData.devStatus.bits.bWarnOffTime=0;
+		sysData.devStatus.bits.bWarnTempOffTime=0;
 	}
-
+	*/
+	if(ov==OV_OFF){
+		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_OFF;
+		sysData.lockReason.bits.bBalance=1;
+		//ret=true;
+		//ret=fi_szrq_balance_off_vavle_close_en();
+	}else if(ov==OV_WARNNING_OFF){
+		sysData.lockReason.bits.bBalance=0;
+		//sysData.lockReason.bits.bBalance=0;
+		if(sysData.devStatus.bits.bTempOffTime==0){
+			sysData.devStatus.bits.bBalanceSta=OV_WARNNING_OFF;
+			//sysData.devStatus.bits.bTempOffTime=1;
+			//ret=true;
+			//ret=fi_szrq_balance_temp_off_vavle_close_en();
+		}
+		
+		
+	}else if(  ov==OV_WARNNING){
+		sysData.lockReason.bits.bBalance=0;
+		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_WARNING;
+		sysData.devStatus.bits.bTempOffTime=0;
+		if(sysData.devStatus.bits.bWarnOffTime==0){
+			//sysData.devStatus.bits.bWarnOffTime=1;
+			//ret=fi_szrq_balance_warn_off_vavle_close_en();
+		}
+		
+	}else{
+		sysData.lockReason.bits.bBalance=0;
+		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_NORMAL;
+		sysData.devStatus.bits.bWarnOffTime=0;
+	}	
 }
 
 

@@ -189,7 +189,8 @@
 			uint32_t bMove:1;
 			uint32_t bBalanceSta:2;
 			
-			uint32_t bWarnOffTime:2;
+			uint32_t bWarnOffTime:1;
+			uint32_t bTempOffTime:1;
         }bits;
     }stDevStatus_t;	
 

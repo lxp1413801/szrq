@@ -318,8 +318,8 @@
 		
 		uint8_t	rtFlow[4];
 		
-		uint8_t	batPercent0;
-		uint8_t	batPercent1;
+		int8_t	batPercent0;
+		int8_t	batPercent1;
 
 		uint8_t	balance[4];
 		uint8_t	valveStatus;
@@ -441,8 +441,8 @@
 		uint8_t	t8;
 		struct{
 			uint8_t bBalanceWarnOffEn:1;
+			uint8_t	bBalanceTempOffEn:1;
 			uint8_t	bBalanceOffEn:1;
-			uint8_t	bBalanceLimitOffEn:1;
 			uint8_t	bShellOpenEn:1;
 			uint8_t	bCutLineEn:1;
 			uint8_t	bPwrLowEn:1;
@@ -453,28 +453,28 @@
 		uint8_t		dataLen[2];
 		uint8_t		commSn[16];			//表具通讯号；
 		
-		uint8_t		pressHiFlg;
+		int8_t		pressHiFlg;
 		uint8_t		pressHi[4];
 		
-		uint8_t		pressLoFlg;
+		int8_t		pressLoFlg;
 		uint8_t		pressLo[4];	
 
-		uint8_t		tempHiFlg;
+		int8_t		tempHiFlg;
 		uint8_t		tempHi[4];		
 
-		uint8_t		tempLoFlg;
+		int8_t		tempLoFlg;
 		uint8_t		tempLo[4];	
 
-		uint8_t		balanceWarnFlg;
+		int8_t		balanceWarnFlg;
 		uint8_t		balanceWarn[4];	
 
-		uint8_t		balanceOffFlg;
-		uint8_t		balanceOff[4];	
+		int8_t		balanceWarnOffFlg;
+		uint8_t		balanceWarnOff[4];	
 
-		uint8_t		balanceLimitOffFlg;
-		uint8_t		balanceLimitOff[4];			
+		int8_t		balanceOffFlg;
+		uint8_t		balanceOff[4];			
 		
-		uint8_t		valveCtrlByteFlg;
+		int8_t		valveCtrlByteFlg;
 		uint8_t		valveCtrlByte;	
 
 		uint8_t 	crc16[2];
@@ -496,63 +496,63 @@
 		uint8_t		dataLen[2];
 		uint8_t		commSn[16];			//表具通讯号；
 		
-		uint8_t		qsSetFlg;
+		int8_t		qsSetFlg;
 		uint8_t		qs[4];
-		uint8_t		volSetFlg;
+		int8_t		volSetFlg;
 		uint8_t		volume[4];	
 		
-		uint8_t		periodFlg;
+		int8_t		periodFlg;
 		uint8_t		period;
 		
-		uint8_t		intervalFlg;
+		int8_t		intervalFlg;
 		uint8_t		interval;
 		
-		uint8_t		periodValueFlg;
+		int8_t		periodValueFlg;
 		uint8_t		periodValue;
 		
-		uint8_t		reportTimeFlg;
+		int8_t		reportTimeFlg;
 		uint8_t		reportTime[2];
 		
-		uint8_t		freezeDayFlg;
+		int8_t		freezeDayFlg;
 		uint8_t		freezeDay;
 		
-		uint8_t		freezeHourFlg;
+		int8_t		freezeHourFlg;
 		uint8_t		freezeHour;			
 		
-		uint8_t		iotIp0Flg;
+		int8_t		iotIp0Flg;
 		uint8_t		iotIp0[4];
 		
-		uint8_t		iotPort0Flg;
+		int8_t		iotPort0Flg;
 		uint8_t		iotPort0[2];
 
-		uint8_t		iotIp1Flg;
+		int8_t		iotIp1Flg;
 		uint8_t		iotIp1[4];
 		
-		uint8_t		iotPort1Flg;
+		int8_t		iotPort1Flg;
 		uint8_t		iotPort1[2];	
 		
-		uint8_t		pressHiFlg;
+		int8_t		pressHiFlg;
 		uint8_t		pressHi[4];
 		
-		uint8_t		pressLoFlg;
+		int8_t		pressLoFlg;
 		uint8_t		pressLo[4];	
 
-		uint8_t		tempHiFlg;
+		int8_t		tempHiFlg;
 		uint8_t		tempHi[4];		
 
-		uint8_t		tempLoFlg;
+		int8_t		tempLoFlg;
 		uint8_t		tempLo[4];	
 
-		uint8_t		balanceWarnFlg;
+		int8_t		balanceWarnFlg;
 		uint8_t		balanceWarn[4];	
 
-		uint8_t		balanceOffFlg;
+		int8_t		balanceOffFlg;
 		uint8_t		balanceOff[4];	
 
-		uint8_t		balanceLimitOffFlg;
+		int8_t		balanceLimitOffFlg;
 		uint8_t		balanceLimitOff[4];			
 		
-		uint8_t		valveCtrlByteFlg;
+		int8_t		valveCtrlByteFlg;
 		uint8_t		valveCtrlByte;	
 
 		uint8_t 	crc16[2];

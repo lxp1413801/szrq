@@ -2,6 +2,8 @@
 #include "./includes/includes.h"
 #include "data-protocol-ex.h"
 
+bool overFlowFlgforSendWarning=false;
+
 //<<--定义上一个时间
 uint8_t aYearAgo=0;
 uint8_t aMonthAgo=0;
@@ -69,10 +71,23 @@ void even_send_msg_to_start_rf(__szrq_udpSendmsg_t *_x_msg)
 	}
 }
 
+
+
 void even_send_msg_to_rf_off(void)
 {
 	udpSendmsg.t32=0x00UL;
 	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_RF_CLOSE;
+	even_send_msg_to_start_rf(&udpSendmsg);	
+}
+
+
+void even_send_msg_to_rf_send_warnning(uint8_t warnFlg,uint8_t warnValue)
+{
+	udpSendmsg.t32=0x00UL;
+	udpSendmsg.str.popType=POP_TYPE_WARNING;
+	udpSendmsg.str.warnFlg=warnFlg;
+	udpSendmsg.str.warnValue=warnValue;
+	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
 	even_send_msg_to_start_rf(&udpSendmsg);	
 }
 
@@ -110,13 +125,11 @@ void app_valve_off_msg_send(void)
 
 void vavle_on_from_app(void)
 {
-//	menu=0;
-//	subMenu=subMENU_MAIN_VAVLE_ON;
-	//app_valve_on();
+
 	app_valve_on_msg_send();
-	
-//	subMenu=0;
+
 	flgValveErrSend=false;
+	/*
 	if(sysData.DLCS>DLC_STATUS_A){
 		if(!(VavleOffReason == OFF_REASON_TEMP || VavleOffReason== OFF_REASON_WARN \
 		|| VavleOffReason== OFF_REASON_FORCE || VavleOffReason == OFF_REASON_LO_VOLETAGE)){
@@ -128,6 +141,11 @@ void vavle_on_from_app(void)
 			even_send_msg_to_start_rf(&udpSendmsg);		
 		}
 	}	
+	*/
+	if(overFlowFlgforSendWarning){
+		overFlowFlgforSendWarning=false;
+		even_send_msg_to_rf_send_warnning(0,SZRQ_WARNVAL_HF);
+	}
 }
 
 void vavle_off_from_app(uint8_t reson)
@@ -136,11 +154,12 @@ void vavle_off_from_app(uint8_t reson)
 	if(sysData.DLCS>DLC_STATUS_A){
 		if(!(vavleState==VALVE_OFF || vavleState==VALVE_OPERATION_OFF)){
 			fiOff=1;
-			
+			/*
 			if(!(reson == OFF_REASON_TEMP || reson== OFF_REASON_WARN \
 			|| reson== OFF_REASON_FORCE || reson == OFF_REASON_LO_VOLETAGE || reson==OFF_REASON_SHELL_OPEN)){
 				fiSend=1;	
 			}
+			*/
 		}
 	}else {
 		if(reson==OFF_REASON_SHELL_OPEN && vavleState==VALVE_OFF){
@@ -154,6 +173,7 @@ void vavle_off_from_app(uint8_t reson)
 		VavleOffReason=reson;
 		app_valve_off_msg_send();		
 	}
+	/*
 	if(fiSend){
 		udpSendmsg.t32=0x00UL;
 		udpSendmsg.str.popType=POP_TYPE_WARNING;
@@ -162,6 +182,7 @@ void vavle_off_from_app(uint8_t reson)
 		udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
 		even_send_msg_to_start_rf(&udpSendmsg);
 	}
+	*/
 }
 
 uint8_t check_vavle_open_condition()
@@ -259,14 +280,8 @@ uint16_t even_key_down_super_pay(void)
 	if(sysData.DLCS==DLC_STATUS_A && !fi_id_writed_in_dlcs_a())return 0;
 	
 	api_sysdata_save();
-	/*
-	if(sysData.DWM== DWM_COMMON_MODE){
-		if(menu!=3)return 0;
-	}else{
-		if(menu!=8)return 0;
-	}
-	*/
-	if(menu!=3)return 0;
+
+	if(menu!=MENU_TOTALE_VOL)return 0;
 	//if(sysData.superPayNums<SUPPER_PAY_TIMES_LIMITS && overageMoney<= 0x0l){
 	if(overageMoney>0x0L)return 0;
 	if(overageMoney<= 0x0L){
@@ -286,8 +301,8 @@ uint16_t even_key_down_super_pay(void)
 		payPromptTimeOut=PAY_PROMPT_TIME_LONG;
 	}
 	//valve_ulock_fi();
-	menu=0;
-	subMenu=0;
+	menu=MENU_HOME;
+	subMenu=subMENU_HOME_MAIN;
 	return 1;		
 }
 
@@ -296,38 +311,28 @@ uint16_t even_key_down_valve_ctrl(void)
 	//uint32_t t32;
 	if(sysData.DLCS==DLC_STATUS_A){
 		if(!fi_id_writed_in_dlcs_a())return 0;
-		else if(menu!=0)return 0;
+		else if(menu!=MENU_HOME)return 0;
 	}else if(sysData.DLCS==DLC_STATUS_B){
 		//if(menu!=0)return 0;
 		return 0;
 	}else{
 		return 0;
 	}
-	if(overrageVolume<=0l){
+	if(overrageVolume<=0L){
 		//转阶段,流转到B
 		api_sysdata_save();
 		qc_data_clear_sysdata_to_dcls_b();	
 		api_sysdata_save();
 		rtVolumeRefreshFlag=true;
-		//add by lxp
-		//m_flow_data_init();
+
 		m_flow_all_data_init();
-		//add end
+
 		api_calc_all();	
 		//
 		vavle_on_from_app();
-		/*
-		if(sysData.DWM==DWM_MONEY_MODE || sysData.DWM==DWM_STEP_MONEY_MODE){
-			menu=0x08;subMenu=0x00;
-		}else{
-			menu=0x04;subMenu=0x00;
-		}
-		*/
-		if(sysData.DWM==DWM_COMMON_MODE){
-			menu=0x03;subMenu=0x00;
-		}else{
-			menu=0x03;subMenu=0x00;
-		}
+
+		menu=MENU_DLCS;
+		subMenu=subMENU_DLCS;
 		noEventTimeOut=120;
 	}else{
 		vavle_off_from_app(OFF_REASON_MANUAL);
@@ -339,18 +344,21 @@ uint16_t even_key_down_connect_ir(void)
 {
 	if(sysData.DLCS==DLC_STATUS_A){
 
-		if(fi_id_writed_in_dlcs_a() && menu==1){
-			menu=16;
+		if(fi_id_writed_in_dlcs_a() && menu==MENU_ID){
+			menu=MENU_IR;
+			subMenu=subMENU_IR;
 			ir_received_ready();
 			return 1;				
 		}else if(!fi_id_writed_in_dlcs_a()){
-			menu=16;
+			menu=MENU_IR;
+			subMenu=subMENU_IR;
 			ir_received_ready();
 			return 1;			
 		}
 	}
-	else if(sysData.DLCS==DLC_STATUS_B && menu==1){
-		menu=16;
+	else if(sysData.DLCS==DLC_STATUS_B && menu==MENU_ID){
+		menu=MENU_IR;
+		subMenu=subMENU_IR;
 		ir_received_ready();
 		return 1;
 	}	
@@ -363,17 +371,15 @@ uint16_t even_key_down_connect_udp(void)
 		#if cfg_IRDA_EN
 		//return 0;
 		if(fi_id_writed_in_dlcs_a()){
-			if(menu==1 || menu==0 || menu==3)return 0;
+			if(menu==MENU_ID || menu==MENU_HOME || menu==MENU_TOTALE_VOL)return 0;
 		}
 		#else
 		if(fi_id_writed_in_dlcs_a()){
-			if(menu==3 || menu==0)return 0;
-			//commit:mmenu==6 ,按键超级充值,menu==0,开关阀
+			if(menu==MENU_TOTALE_VOL || menu==MENU_HOME)return 0;
 		}		
 		#endif
 	}else if(sysData.DLCS==DLC_STATUS_B){
-		//if(menu==6 || menu==0)return 0;
-		if(menu==3 || menu==1)return 0;
+		if(menu==MENU_TOTALE_VOL || menu==MENU_ID)return 0;
 	}	
 
 	udpSendmsg.t32=0x00UL;
@@ -390,27 +396,38 @@ void event_key_down_process_menu_change(void)
 	#if cfg_IRDA_EN
 	uint8_t bkupMenu=menu;
 	#endif
-	menu++;
-	if(sysData.DWM== DWM_COMMON_MODE ){
-		if(menu>11)menu=0;
-		if(menu==2 || menu==5)noEventTimeOut=60;
+	uint8_t* pmenu;
+	uint16_t len,i;
+	if(sysData.DWM== DWM_COMMON_MODE){
+		if(sysData.DLCS<=DLC_STATUS_B){
+			pmenu=(uint8_t*)menuTableVolMode;
+			len=sizeof(menuTableVolMode);
+		}else{
+			pmenu=(uint8_t*)menuTableSzrq;
+			len=sizeof(menuTableSzrq);
+		}
 	}else if(sysData.DWM==DWM_VOLUME_MODE){
-		if(menu>11)menu=0;
-		if(menu==5 || menu==8)noEventTimeOut=60;
+		pmenu=(uint8_t*)menuTableVolMode;
+		len=sizeof(menuTableVolMode);		
 	}else{
-		if(menu>13)menu=0;
-		if(menu==7 || menu==10)noEventTimeOut=60;
+		pmenu=(uint8_t*)menuTableMoneryMode;
+		len=sizeof(menuTableMoneryMode);			
 	}
-	#if cfg_IRDA_EN
-	if(menu!=16){
-		ir_disable();
+	for(i=0;i<len;i++){
+		if(menu==pmenu[i])break;
 	}
-	#endif
-	if(menu==0){
+	if(i<len-1){
+		i++;
+	}else{
+		i=0;
 		buzzer_beap_ms(200);	
-	}	
+	}
+	menu=pmenu[i];
+	subMenu=0;
+	if(menu==MENU_IMEI || menu==MENU_CCID){
+		noEventTimeOut=30;
+	}
 }
-
 void event_key_down_process(void)
 {
 	uint32_t tm=0x00;
@@ -468,7 +485,7 @@ void event_key_down_process(void)
 		event_key_down_process_menu_change();
 
 	}while(0);
-	ui_disp_menu(globleTickerSec);
+	ui_disp_menu();
 	m_gpio_config_key0_irq_re_enable();
 }
 
@@ -768,8 +785,8 @@ void event_rtc_process_sec(void)
 	m_rtc_get(&stRtcDataTime);
 	event_rtc_date_time_x();
 	if(noEventTimeOut<=1){
-		menu=0;
-		subMenu=0;
+		menu=MENU_HOME;
+		subMenu=subMENU_HOME_MAIN;
 	}
 	tm=osKernelSysTick();
 	#if 1
@@ -777,7 +794,7 @@ void event_rtc_process_sec(void)
 		vavleState==VALVE_OFF || sysData.devStatus.bits.bBalanceSta \
 		|| pwrStatus!=POWER_STATUS_NORMAL){
 		m_lcd_enable();
-		ui_disp_menu(globleTickerSec);
+		ui_disp_menu();
 
 	}else{
 		m_lcd_disable();
@@ -797,6 +814,18 @@ void event_rtc_process_sec(void)
 }
 
 bool shellOpened=false;
+
+bool fi_szrq_shell_open_close_vavle_close_en(void)
+{
+	bool ret=false;
+	__szrq_valveCtrlByte_t szrqVctrl;
+	szrqVctrl.t8=sysData.szrqValveCtrlByte ;
+	if(szrqVctrl.bits.bShellOpenEn){
+		ret=true;
+	}
+	return ret;
+}
+
 void event_shell_open_process(void)
 {
 	m_shell_open_rcc_enable();
@@ -806,36 +835,46 @@ void event_shell_open_process(void)
 		//shellOpened=true;
 		sysData.devStatus.bits.bShellOpenB=1;
 		sysData.lockReason.bits.bShellOpen=1;
-
-		vavle_off_from_app(OFF_REASON_SHELL_OPEN);
+		if(fi_szrq_shell_open_close_vavle_close_en()){
+			vavle_off_from_app(OFF_REASON_SHELL_OPEN);
+		}else{
+			sysData.lockReason.bits.bShellOpen=0;
+		}
 		//if(!szrqRtcSync)return 0;
 		if(!shellOpened){
 			//if(!szrqRtcSync)return;
 			shellOpened=true;
-			udpSendmsg.t32=0x00UL;
-			udpSendmsg.str.popType=POP_TYPE_WARNING;
-			udpSendmsg.str.warnFlg=1;
-			udpSendmsg.str.warnValue=SZRQ_WARNVAL_SHELL_OPENB;
-			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
-			even_send_msg_to_start_rf(&udpSendmsg);
+//			udpSendmsg.t32=0x00UL;
+//			udpSendmsg.str.popType=POP_TYPE_WARNING;
+//			udpSendmsg.str.warnFlg=1;
+//			udpSendmsg.str.warnValue=SZRQ_WARNVAL_SHELL_OPENB;
+//			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
+//			even_send_msg_to_start_rf(&udpSendmsg);
+			even_send_msg_to_rf_send_warnning(1,SZRQ_WARNVAL_SHELL_OPENB);	
 		}
 	}else{
 		sysData.devStatus.bits.bShellOpenB=0;
-		
+		//if(sysData.DLCS<=DLC_STATUS_B){
+		if(!fi_szrq_shell_open_close_vavle_close_en()){
+			sysData.lockReason.bits.bShellOpen=0;
+		}
 		if(shellOpened){
 			//if(!szrqRtcSync)return;
 			shellOpened=false;	
-			udpSendmsg.t32=0x00UL;
-			udpSendmsg.str.popType=POP_TYPE_WARNING;
-			udpSendmsg.str.warnFlg=0;
-			udpSendmsg.str.warnValue=SZRQ_WARNVAL_SHELL_OPENB;
-			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
-			even_send_msg_to_start_rf(&udpSendmsg);			
+			
+//			udpSendmsg.t32=0x00UL;
+//			udpSendmsg.str.popType=POP_TYPE_WARNING;
+//			udpSendmsg.str.warnFlg=0;
+//			udpSendmsg.str.warnValue=SZRQ_WARNVAL_SHELL_OPENB;
+//			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
+//			even_send_msg_to_start_rf(&udpSendmsg);	
+			
+			even_send_msg_to_rf_send_warnning(0,SZRQ_WARNVAL_SHELL_OPENB);	
 		}
 		
 	}
 }
-
+bool gasLeaked=false;
 void event_alarm_process(void)
 {
 	//add dect
@@ -857,6 +896,17 @@ void event_alarm_process(void)
 	if(m_gpio_read(ALARM1_PORT,ALARM1_PIN)){
 		sysData.devStatus.bits.bLeakage=0;
 		m_gpio_config_alarm_irq_re_enable();
+		
+		if(gasLeaked){
+			gasLeaked=false;
+//			udpSendmsg.t32=0x00UL;
+//			udpSendmsg.str.popType=POP_TYPE_WARNING;
+//			udpSendmsg.str.warnFlg=0;
+//			udpSendmsg.str.warnValue=SZRQ_WARNVAL_LEAKAGE;
+//			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
+//			even_send_msg_to_start_rf(&udpSendmsg);		
+			even_send_msg_to_rf_send_warnning(0,SZRQ_WARNVAL_LEAKAGE);	
+		}
 		return;
 	}
 	if(sysData.devStatus.bits.bLeakage==0)osDelay(400);
@@ -871,6 +921,18 @@ void event_alarm_process(void)
 		//lockReason.bits.bLeakage=1;
 		
 		vavle_off_from_app(OFF_REASON_LEAKAGE);
+		
+		if(!gasLeaked){
+			gasLeaked=true;
+//			udpSendmsg.t32=0x00UL;
+//			udpSendmsg.str.popType=POP_TYPE_WARNING;
+//			udpSendmsg.str.warnFlg=1;
+//			udpSendmsg.str.warnValue=SZRQ_WARNVAL_LEAKAGE;
+//			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
+//			even_send_msg_to_start_rf(&udpSendmsg);		
+			even_send_msg_to_rf_send_warnning(1,SZRQ_WARNVAL_LEAKAGE);			
+		}
+		
 	}else{
 	
 	}
@@ -878,6 +940,17 @@ void event_alarm_process(void)
 	m_gpio_config_alarm_irq_re_enable();
 }
 
+bool fi_szrq_ste_close_vavle_close_en(void)
+{
+	bool ret=false;
+	__szrq_valveCtrlByte_t szrqVctrl;
+	szrqVctrl.t8=sysData.szrqValveCtrlByte ;
+	if(szrqVctrl.bits.bSteEn){
+		ret=true;
+	}
+	return ret;
+}
+bool steStatusied=false;
 void event_ste_process(void)
 {
 	m_gpio_config_ste_irq_disable();
@@ -885,27 +958,50 @@ void event_ste_process(void)
 	if(m_gpio_read(STE_PORT,STE_PIN)){
 		sysData.devStatus.bits.bStrongMagnetic=0;
 		m_gpio_config_ste_irq_re_enable();
+		if(steStatusied){
+			steStatusied=false;
+//			udpSendmsg.t32=0x00UL;
+//			udpSendmsg.str.popType=POP_TYPE_WARNING;
+//			udpSendmsg.str.warnFlg=0;
+//			udpSendmsg.str.warnValue=SZRQ_WARNVAL_STE;
+//			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
+//			even_send_msg_to_start_rf(&udpSendmsg);	
+			even_send_msg_to_rf_send_warnning(0,SZRQ_WARNVAL_STE);
+		}
 		return;
 	}
 	osDelay(100);
 	m_gpio_ste_port_rcc_enable();
 	if(!(m_gpio_read(STE_PORT,STE_PIN))){
-		//event_set_globle_time_out_max();
-		//lcdShowTimeOut=NO_EVEN_MAX_TIME_OUT;
 		sysData.devStatus.bits.bStrongMagnetic=1;
-		//uint8_t t8=lock.bits.bStrongMagnetic;
 		if(sysData.DLCS >= DLC_STATUS_B){
 			if(sysData.lockReason.bits.bStrongMagnetic<MAX_STE_OFF_TIMES && vavleState==VALVE_ON){
-				sysData.lockReason.bits.bStrongMagnetic++;
+				if(fi_szrq_ste_close_vavle_close_en()){
+					sysData.lockReason.bits.bStrongMagnetic++;
+				}else{
+					sysData.lockReason.bits.bStrongMagnetic=0;;
+				}
 				osDelay(100);
 			}
 		}else{
 			sysData.lockReason.bits.bStrongMagnetic=1;
 		}
-
-		vavle_off_from_app(OFF_REASON_STRONG_MAGTIC);
+		if(fi_szrq_ste_close_vavle_close_en()){
+			vavle_off_from_app(OFF_REASON_STRONG_MAGTIC);
+		}
+		if(!steStatusied){
+			steStatusied=true;
+//			udpSendmsg.t32=0x00UL;
+//			udpSendmsg.str.popType=POP_TYPE_WARNING;
+//			udpSendmsg.str.warnFlg=1;
+//			udpSendmsg.str.warnValue=SZRQ_WARNVAL_STE;
+//			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
+//			even_send_msg_to_start_rf(&udpSendmsg);		
+			even_send_msg_to_rf_send_warnning(1,SZRQ_WARNVAL_STE);
+		}
 	}else{
 		//DeviceEvent.bits.bStrongMagnetic=0;
+		
 	}
 	__nop();
 	m_gpio_config_ste_irq_re_enable();
@@ -963,12 +1059,13 @@ uint8_t event_process_check_batteray(void)
 	}else{
 		
 		if(sysData.devStatus.bits.bPwrStatus==POWER_STATUS_DOWN){
-			udpSendmsg.t32=0x00UL;
-			udpSendmsg.str.popType=POP_TYPE_WARNING;
-			udpSendmsg.str.warnFlg=0;
-			udpSendmsg.str.warnValue=SZRQ_WARNVAL_PDBAT0;
-			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
-			even_send_msg_to_start_rf(&udpSendmsg);				
+//			udpSendmsg.t32=0x00UL;
+//			udpSendmsg.str.popType=POP_TYPE_WARNING;
+//			udpSendmsg.str.warnFlg=0;
+//			udpSendmsg.str.warnValue=SZRQ_WARNVAL_PDBAT0;
+//			udpSendmsg.str.eventMsg=(uint8_t)flg_NB_MODULE_COMM_PROCESS_REQ;
+//			even_send_msg_to_start_rf(&udpSendmsg);	
+			even_send_msg_to_rf_send_warnning(0,SZRQ_WARNVAL_PDBAT0);			
 		}
 		
 		sysData.devStatus.bits.bPwrStatus =POWER_STATUS_NORMAL;
@@ -1092,14 +1189,16 @@ void event_process_ir_received(void)
 	if(sta){
 		buzzer_beap_ms(500); 
 		event_disable_sleep_in_lwp();
-		menu=1;
+		menu=MENU_ID;
+		subMenu=subMENU_ID_LO;
 	}else{
 		buzzer_beap_ms(100);
 		osDelay(100);
 		buzzer_beap_ms(100);
 		osDelay(100);
 		buzzer_beap_ms(100);	
-		menu=0;
+		menu=MENU_HOME;
+		subMenu=subMENU_HOME_MAIN;
 	}
 	
 }
@@ -1188,6 +1287,14 @@ void vTheadEvent(void * pvParameters)
 		#if cfg_IRDA_EN
 			event_process_ir_received();
 		#endif
+		}
+		if(event.value.signals & flg_EVENT_HI_FLOW){
+			//even_send_msg_to_rf_send_warnning(0,SZRQ_WARNVAL_PDBAT0);
+			if(overFlowFlgforSendWarning){
+				even_send_msg_to_rf_send_warnning(1,SZRQ_WARNVAL_HF);
+			}else{
+				//even_send_msg_to_rf_send_warnning(0,SZRQ_WARNVAL_HF);
+			}
 		}
 	}
 }

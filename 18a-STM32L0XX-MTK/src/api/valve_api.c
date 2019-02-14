@@ -36,8 +36,8 @@ void app_valve_on(void)
 	uint16_t valveRuntime;
     if(vavleState==VALVE_ON)return;
     
-	lcd_clear_all();
-	m_lcd_disp_str_refresh(__xT("On--"));    
+	//lcd_clear_all();
+	//m_lcd_disp_str_refresh(__xT("On--"));    
 
 	m_flow_all_data_init();
 	valveRuntime=sysData.VavleOnTime;

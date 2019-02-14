@@ -249,7 +249,7 @@
 	extern void m_lcd_all_on(void);
 	extern void m_lcd_all_off(void);
 	
-	extern void m_lcd_disp_dp(uint8_t loc);
+	extern void m_lcd_sisp_dp(uint8_t loc);
 	
 	extern void m_lcd_init(void);	
 	extern void m_lcd_reinit(void);

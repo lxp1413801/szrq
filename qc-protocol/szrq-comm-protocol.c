@@ -1081,14 +1081,17 @@ int16_t __szrq_ins_common_rsp(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,uint16
 	szrqRtcSync=true;
 	__nop();
 	
-	if(sth->cmd==SZRQ_CMD_POP_MULT_RSP && stb->rsp==1){
+	//if(sth->cmd==SZRQ_CMD_POP_MULT_RSP && stb->rsp==1){
+	if(sth->cmd==SZRQ_CMD_POP_MULT_RSP){
 		szrq_item_set_read_loc(szrqMultSendNum);
 		if(szrqMulHasMore){
 			szrqSendStaMichine=__15S_SEND_SM_POP;
 			return 1;
 		}
 	}	
-	if(sth->cmd==SZRQ_CMD_WARNING_REPORT_RSP && stb->rsp==1){
+
+	//if(sth->cmd==SZRQ_CMD_WARNING_REPORT_RSP && stb->rsp==1){
+	if(sth->cmd==SZRQ_CMD_WARNING_REPORT_RSP){
 		if(szrqWarnReportSendOld){
 			szrqWarnReportSendOld=0;
 			szrqSendStaMichine=__15S_SEND_SM_POP;
@@ -1155,7 +1158,7 @@ int16_t __szrq_ins_sync_balance(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,uint
 
 int16_t __szrq_ins_valve_ctrl(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,uint16_t ssize)
 {
-	uint8_t rsp;
+	int8_t rsp;
 	int16_t ret=0;
 	int32_t t32;
 	__szrq_ddfValveCtrl_t* stb;
@@ -1361,16 +1364,16 @@ int16_t __szrq_ins_set_warn_param(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,ui
 	api_sysdata_save();	
 	//<<to do
 	if(stb->pressHiFlg){
-		stb->pressHiFlg=-12;
+		stb->pressHiFlg=(int8_t)-12;
 	}
 	if(stb->pressLoFlg){
-		stb->pressHiFlg=-12;
+		stb->pressHiFlg=(int8_t)-12;
 	}
 	if(stb->tempHiFlg){
-		stb->pressHiFlg=-12;
+		stb->pressHiFlg=(int8_t)-12;
 	}
 	if(stb->tempLoFlg){
-		stb->pressHiFlg=-12;
+		stb->pressHiFlg=(int8_t)-12;
 	}
 	
 	if(stb->balanceWarnFlg){
@@ -1378,15 +1381,15 @@ int16_t __szrq_ins_set_warn_param(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,ui
 		sysData.warnSetOverageVM=t32;
 		saveFlg=true;	
 	}
-	if(stb->balanceOffFlg){
-		m_mem_cpy_len((uint8_t*)&t32,stb->balanceOff,sizeof(uint32_t));
-		sysData.offSetOverageVM=t32;
+	if(stb->balanceWarnOffFlg){
+		m_mem_cpy_len((uint8_t*)&t32,stb->balanceWarnOff,sizeof(uint32_t));
+		sysData.warnOffSetOverageVM=t32;
 		saveFlg=true;	
 	}	
 	
-	if(stb->balanceLimitOffFlg){
-		m_mem_cpy_len((uint8_t*)&t32,stb->balanceLimitOff,sizeof(uint32_t));
-		sysData.limitOffsetVM=t32;
+	if(stb->balanceOffFlg){
+		m_mem_cpy_len((uint8_t*)&t32,stb->balanceOff,sizeof(uint32_t));
+		sysData.offSetOverageVM=t32;
 		saveFlg=true;	
 	}		
 	
@@ -1403,9 +1406,9 @@ int16_t __szrq_ins_set_warn_param(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,ui
 int16_t __szrq_ins_read_all_param(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,uint16_t ssize)
 {
 	int16_t ret=0;
-	__szrq_ddfGetAllParm_t* stb;
+	//__szrq_ddfGetAllParm_t* stb;
 	if(rlen<sizeof(__szrq_framHeader_t)+sizeof(__szrq_ddfGetAllParm_t))return 0;
-	stb=(__szrq_ddfGetAllParm_t*)(rbuf+sizeof(__szrq_framHeader_t));
+	//stb=(__szrq_ddfGetAllParm_t*)(rbuf+sizeof(__szrq_framHeader_t));
 	//<<todo
 	//>>
 	ret=__szrq_load_frame_all_param(sbuf,ssize);

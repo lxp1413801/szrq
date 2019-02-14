@@ -139,10 +139,7 @@ int16_t l620_hal_power_on(void)
 	}
 	__nop();
 	ret=mtk_at_cmd(NULL,(uint8_t*)"+EGACT:1,1,1,1",recbuf,reclen,20*configTICK_RATE_HZ);
-	
-	
-	return ret;
-	
+	return ret;	
 }
 
 int16_t l620_hal_power_off(void)
@@ -365,7 +362,7 @@ int16_t l620_send_process(uint8_t* sbuf,uint16_t slen)
 	int16_t ret;
 	uint8_t* recbuf=nbAplReceivedBuffer;
 	uint16_t reclen=sizeof(nbAplReceivedBuffer);	
-	menu=0x00;
+	menu=MENU_HOME;
 	subMenu=subMENU_MAIN_HOME_NB_SEND;	
 	ui_disp_menu(0);	
 	
@@ -387,7 +384,7 @@ int16_t l620_send_process(uint8_t* sbuf,uint16_t slen)
 int16_t l620_received(uint8_t* rbuf,uint16_t rsize)
 {
 	int16_t ret;
-	menu=0x00;
+	menu=MENU_HOME;
 	subMenu=subMENU_MAIN_HOME_NB_RECEIVED;	
 	ui_disp_menu(0);	
 	
@@ -418,7 +415,7 @@ int16_t l620_send_ready(void)
 //	uint16_t reclen=sizeof(nbAplReceivedBuffer);
 	uint32_t tm;
 	//init usart
-	menu=0x00;
+	menu=MENU_HOME;
 	subMenu=subMENU_MAIN_HOME_NB_ATTACH;	
 	ui_disp_menu(0);		
 	
@@ -479,7 +476,7 @@ int16_t l620_send_ready(void)
 		}
 		//exit 0
 		if(ret<0){
-			menu=0x00;
+			menu=MENU_HOME;
 			subMenu=subMENU_MAIN_HOME_NB_PSM;				
 			l620_hal_power_off();
 			mtkStateMachine=MTK_POWER_OFF;	
@@ -491,7 +488,7 @@ int16_t l620_send_ready(void)
 		}
 		//exit 0
 		if((osKernelSysTick()-tm)>120*configTICK_RATE_HZ){
-			menu=0x00;
+			menu=MENU_HOME;
 			subMenu=subMENU_MAIN_HOME_NB_PSM;			
 			l620_hal_power_off();
 			mtkStateMachine=MTK_POWER_OFF;
@@ -527,7 +524,7 @@ void vTheadNbL620(void * pvParameters)
 			popPackageType=(popPackageType_t)(((event.value.v)>>24) & 0xffUL);
 			ret=l620_send_ready();
 			if(ret<=0){
-				menu=0x00;
+				menu=MENU_HOME;
 				subMenu=0;
 				continue;	
 			}			
@@ -573,7 +570,7 @@ void vTheadNbL620(void * pvParameters)
 				osDelay(2000);				
 				
 			}while(1);
-			menu=0x00;
+			menu=MENU_HOME;
 			subMenu=subMENU_MAIN_HOME_NB_PSM;	
 			if(ret>0 && mtkStateMachine==MTK_READY){
 				//l620_enter_psm();
@@ -588,12 +585,8 @@ void vTheadNbL620(void * pvParameters)
 			}
 			//nb_power_off_process();
 			if(!(sysData.DLCS==DLC_STATUS_A && !fi_id_writed_in_dlcs_a())){
-				if(sysData.DWM != DWM_COMMON_MODE){
-					menu=7;
-				}else{
-					menu=3;
-				}
-				subMenu=0;
+				menu=MENU_RSSI;
+				subMenu=subMENU_RSSI;
 			}
 			data_api_day_change();			
 			
@@ -749,7 +742,7 @@ int16_t bc26_get_ver(void)
 	
 	return ret;		
 }
-
+/*
 int16_t bc26_get_csq(void)
 {
 	int16_t ret;
@@ -772,6 +765,36 @@ int16_t bc26_get_csq(void)
 		ret=ret+(csq-1);
 		if(ret==-1)ret=-2;
 		szrqRssi=csq/2;
+	}
+	return ret;		
+}
+
+*/
+int16_t bc26_get_csq(void)
+{
+	int16_t ret;
+	uint16_t t16,csq;
+	uint8_t* recbuf=nbAplReceivedBuffer;
+	uint16_t reclen=sizeof(nbAplReceivedBuffer);
+	
+	//ret=mtk_at_cmd_const(&L620_ATCMD_CSQ,recbuf,reclen,3000);	
+	ret=mtk_at_cmd((uint8_t*)"AT+CSQ\r\n",(uint8_t*)"OK",recbuf,reclen,2*configTICK_RATE_HZ);
+	if(ret<=0)return ret;
+	
+	ret=m_str_match_ex(recbuf,(uint8_t*)"+CSQ: ",&t16);
+	if(!ret)return ret;
+	t16=t16+sizeof("+CSQ: ")-1;
+	csq=my_scanf_int16(recbuf+t16,',',&t16);
+	if(csq==99 || csq==0){
+		ret=0;
+	}else{
+		
+		ret=-113;
+		szrqRssi=csq;
+		//ret=ret+(csq-1);
+		//if(ret==-1)ret=-2;
+		ret=ret+(csq*2);
+		//szrqRssi=csq/2;
 	}
 	return ret;		
 }
@@ -1133,9 +1156,9 @@ int16_t bc26_send_process(uint8_t* sbuf,uint16_t slen)
 	int16_t ret;
 	uint8_t* recbuf=nbAplReceivedBuffer;
 	uint16_t reclen=sizeof(nbAplReceivedBuffer);	
-	menu=0x00;
-	subMenu=subMENU_MAIN_HOME_NB_SEND;	
-	ui_disp_menu(0);
+	menu=MENU_HOME;
+	subMenu=subMENU_HOME_NB_SEND;	
+	ui_disp_menu();
 	
 	//ret=bc26_register_iot();
 	//if(ret<=0)return ret;
@@ -1166,9 +1189,9 @@ int16_t bc26_send_ready(void)
 	uint16_t reclen=sizeof(nbAplReceivedBuffer);
 	uint32_t tm;
 	//init usart
-	menu=0x00;
-	subMenu=subMENU_MAIN_HOME_NB_ATTACH;	
-	ui_disp_menu(0);		
+	menu=MENU_HOME;
+	subMenu=subMENU_HOME_NB_CONN;	
+	ui_disp_menu();		
 	
 	m_lpusart1_deinit();
 	osDelay(200);
@@ -1270,8 +1293,8 @@ int16_t bc26_send_ready(void)
 		}
 		//exit 0
 		if(ret<0){
-			menu=0x00;
-			subMenu=subMENU_MAIN_HOME_NB_PSM;			
+			menu=MENU_HOME;
+			subMenu=subMENU_HOME_NB_END;			
 			bc26_hal_power_off();
 			mtkStateMachine=MTK_POWER_OFF;	
 			break;
@@ -1282,8 +1305,8 @@ int16_t bc26_send_ready(void)
 		}
 		//exit 0
 		if((osKernelSysTick()-tm)>120*configTICK_RATE_HZ){
-			menu=0x00;
-			subMenu=subMENU_MAIN_HOME_NB_PSM;			
+			menu=MENU_HOME;
+			subMenu=subMENU_HOME_NB_END;			
 			bc26_hal_power_off();
 			mtkStateMachine=MTK_POWER_OFF;
 			ret=0;
@@ -1297,9 +1320,9 @@ int16_t bc26_send_ready(void)
 int16_t bc26_received(uint8_t* rbuf,uint16_t rsize)
 {
 	int16_t ret=0x00;
-	menu=0x00;
-	subMenu=subMENU_MAIN_HOME_NB_RECEIVED;	
-	ui_disp_menu(0);	
+	menu=MENU_HOME;
+	subMenu=subMENU_HOME_NB_REC;	
+	ui_disp_menu();	
 	
 	ret=mtk_at_cmd(NULL,(uint8_t*)"+QIURC: \"recv\",0,",rbuf,rsize,20*configTICK_RATE_HZ);
 	return ret;
@@ -1313,9 +1336,10 @@ int16_t bc26_received_pool(uint8_t* rbuf,uint16_t rsize,uint32_t tmOut)
 	uint16_t t16,i,rlen;
 	uint8_t* p;
 	uint32_t tm,
-	menu=0x00;
-	subMenu=subMENU_MAIN_HOME_NB_RECEIVED;	
-	ui_disp_menu(0);	
+	menu=MENU_HOME;
+	menu=menu;
+	subMenu=subMENU_HOME_NB_REC;	
+	ui_disp_menu();	
 	tm=osKernelSysTick();
 	if(tmOut<configTICK_RATE_HZ)tmOut=configTICK_RATE_HZ;
 	do{
@@ -1423,8 +1447,8 @@ void vTheadNbBc26(void * pvParameters)
 
 			ret=bc26_send_ready();
 			if(ret<=0){
-				menu=0x00;
-				subMenu=0;
+				menu=MENU_HOME;
+				subMenu=subMENU_HOME_MAIN;
 				continue;	
 			}	
 			len=0;
@@ -1462,6 +1486,8 @@ void vTheadNbBc26(void * pvParameters)
 				sendRedo=0;
 				do{
 					sendRedo++;
+					ret=0;
+					if(sendRedo>3)break;
 					szrqRecHasMore=0;
 					ret=bc26_send_process(nbAplSendBuffer,len);	
 					__nop();
@@ -1511,22 +1537,15 @@ void vTheadNbBc26(void * pvParameters)
 				//event=osMessagePeek(nbSendMsgQ, 1);
 				//if(event.status==osEventMessage)continue;
 			}
-			menu=0x00;
-			subMenu=subMENU_MAIN_HOME_NB_PSM;
+			menu=MENU_HOME;
+			subMenu=subMENU_HOME_NB_END;
 			
 			bc26_hal_power_off();
 			if(!(sysData.DLCS==DLC_STATUS_A && !fi_id_writed_in_dlcs_a())){
-				if(sysData.DWM== DWM_COMMON_MODE){
-					menu=2;
-				}else if(sysData.DWM== DWM_VOLUME_MODE){
-					menu=5;
-				}else{
-					menu=7;
-				}
-				subMenu=0;
+				menu=MENU_RSSI;
+				subMenu=subMENU_RSSI;
 			}	
 		}
-		
 	}
 }
 

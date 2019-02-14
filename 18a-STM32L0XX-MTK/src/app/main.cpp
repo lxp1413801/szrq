@@ -95,7 +95,7 @@ void pre_star_thread_main_00(void)
 	
 	qc_data_mutex_create();
 	m_thread_create_sysdata();
-	//qc_data_sysdata_set_default();
+	qc_data_sysdata_set_default();
 
 	//szrq_part_format();
 	qc_data_sysdata_init();
@@ -155,29 +155,29 @@ void vTheadMain(void * pvParameters)
 	bkMenu=menu;
 	bkSubMenu=subMenu;
 	
-	m_gpio_ir_rx_pwr_on();
-	while(1);
+	//m_gpio_ir_rx_pwr_on();
+	//while(1);
 	while(1){
 		event=osSignalWait(flg_MAIN_THREAD_ALL_BITS,osWaitForever);
 		//osDelay(100);
 		if(event.value.signals & flg_MAIN_THREAD_VALVE_ON){
 			bkMenu=menu;
 			bkSubMenu=subMenu;
-			menu=0;
-			subMenu=subMENU_MAIN_VAVLE_ON;
+			menu=MENU_HOME;
+			subMenu=subMENU_HOME_VAVLE_ON;
 			app_valve_on();
-			subMenu=0;
+			subMenu=subMENU_HOME_MAIN;
 			flgValveErrSend=false;			
 		}
 		if(event.value.signals & flg_MAIN_THREAD_VALVE_OFF){
 			bkMenu=menu;
 			bkSubMenu=subMenu;		
-			menu=0;
-			subMenu=subMENU_MAIN_VAVLE_OFF;	
+			menu=MENU_HOME;
+			subMenu=subMENU_HOME_VAVLE_OFF;	
 			app_valve_off();
 			//menu=bkMenu;
 			//subMenu=bkSubMenu;	
-			if(menu== 0 && subMenu==subMENU_MAIN_VAVLE_OFF){
+			if(menu== MENU_HOME && subMenu==subMENU_HOME_VAVLE_OFF){
 				menu=bkMenu;
 				subMenu=bkSubMenu;				
 			}			

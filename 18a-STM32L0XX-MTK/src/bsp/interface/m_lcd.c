@@ -7,7 +7,7 @@
 LCD_HandleTypeDef LCDHandle;
 uint16_t LCDHandleStat=0;
 //const uint8_t  LCDDigitalIndexTable[]="0123456789abcdefghijklmnopqrstuvwxyz.-: GHCNOPSRAB";
-const uint8_t  LCDDigitalIndexTable[]="0123456789abcdefghijklmnopqrstuvwxyz.-: GHCNOPS";
+const uint8_t  LCDDigitalIndexTable[]="0123456789abcdefghijklmnopqrstuvwxyz.-: GHCNOPSAR";
 const uint8_t LCDDigitalTable[]=
 {
     LCD_CODE_0,LCD_CODE_1,LCD_CODE_2,LCD_CODE_3,
@@ -21,7 +21,7 @@ const uint8_t LCDDigitalTable[]=
     LCD_CODE_W,LCD_CODE_X,LCD_CODE_Y,LCD_CODE_Z,
     LCD_CODE_DOT,LCD_CODE__,LCD_CODE_DDOT,0x00,
 	LCD_CODE_G_U,LCD_CODE_H_U,LCD_CODE_C_U,LCD_CODE_N_U,
-	LCD_CODE_O_U,LCD_CODE_P,LCD_CODE_S,
+	LCD_CODE_O_U,LCD_CODE_P,LCD_CODE_S,LCD_CODE_A,LCD_CODE_R,
 };
 
 void m_lcd_disp_dig(uint8_t loc,uint8_t dig)
@@ -138,7 +138,7 @@ void m_lcd_all_off(void)
 	m_lcd_refresh();	
 }
 
-void m_lcd_sisp_dp(uint8_t loc)
+void m_lcd_disp_dp(uint8_t loc)
 {
 	switch(loc){
 		case 1:m_lcd_disp_seg_dp1();break;

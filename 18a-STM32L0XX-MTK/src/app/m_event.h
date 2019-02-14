@@ -15,10 +15,12 @@ extern "C"{
 	#define flg_EVENT_DAY_CHANGE	(0x01ul<<5)
 	#define flg_EVENT_ALARM_FALLING (0x01ul<<6)
 	#define flg_EVENT_IR_RECEIVED	(0x01ul<<7)
+	#define flg_EVENT_HI_FLOW		(0x01ul<<8)
 	
 	#define flg_EVENT_ALL (flg_EVENT_KEY_DOWN | flg_EVENT_STE_FALLING \
 	| flg_EVENT_FLW_FALLING | flg_EVENT_RTC_WAKE_UP | flg_EVENT_UNLOCK_ON \
-	| flg_EVENT_DAY_CHANGE | flg_EVENT_ALARM_FALLING | flg_EVENT_IR_RECEIVED)
+	| flg_EVENT_DAY_CHANGE | flg_EVENT_ALARM_FALLING | flg_EVENT_IR_RECEIVED \
+	| flg_EVENT_HI_FLOW)
 	
 	//extern uint32_t userTickerSec;
 	
@@ -57,6 +59,8 @@ extern "C"{
 	
 	extern void event_process_day_change(void);
 	extern void event_process_minute_change(void);
+	
+	extern bool overFlowFlgforSendWarning;
 #ifdef __cplusplus
 }
 #endif
