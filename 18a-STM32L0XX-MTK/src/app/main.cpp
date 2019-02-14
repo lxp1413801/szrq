@@ -131,7 +131,9 @@ void vTheadMain(void * pvParameters)
 {
 	(void)pvParameters;
 	osEvent event;
+	
 	if(sizeof(stDeviceInf_t)>sizeof(commonBuf))while(1);
+	if(sizeof(uartSendBuf)<sizeof(rfSendFifoBody_t))while(1);
 	
 	pre_star_thread_main_00();
 	

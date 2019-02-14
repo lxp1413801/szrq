@@ -668,6 +668,7 @@
 	
 	//-------------------------------------------------------------------------------------------------
 	//api
+	extern int16_t __szrq_modify_hase_more(uint8_t* buf,uint16_t len,uint8_t haseMore);
 	
 	extern int16_t __szrq_load_frame_header(uint8_t* buf,uint16_t ssize,uint8_t dsr,uint8_t cmd);
 	extern int16_t __szrq_load_frame_pop_s(uint8_t* buf,uint16_t ssize,uint8_t popPeriodType);

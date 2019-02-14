@@ -519,84 +519,8 @@
 	extern void data_api_clear_calc_period_volmue_ex(void);
 	extern bool flgValveErrSend;
 	
-	extern uint16_t qc_data_save_sys_freeze_data(void);
-	
-	//<<--for czsn
-	
-	extern uint8_t czsnFlowStatus;
-	//满足潮州申能数据记录定义而改
-	
-	
-	
-	typedef struct{
-		uint32_t ts;
-		uint32_t vol;
-		uint16_t sta;
-		uint16_t crc;
-	}recordDef_t,volItem_t;
-	
-	
-	typedef	struct{
-		uint16_t	writeLoc;
-		uint16_t	itemNum;
-		uint16_t	unreadNum;
-		uint16_t	crc;
-	}volLogHeader_t;
-	
-	#define FREEZE_VOLLOG_HEADER_START_ADDR	(DATA_EEPROM_BANK2_BASE)
-	#define FREEZE_VOLLOG_BODY_START_ADDR		(FREEZE_VOLLOG_HEADER_START_ADDR)+sizeof(volLogHeader_t)
-	#define FREEZE_VOLLOG_ITEM_NUM_LIMITS	20
-	
-	typedef	struct{
-		uint16_t	writeLoc;
-		uint16_t	itemNum;
-		uint16_t	readLoc;
-		uint16_t	crc;
-	}szrqVolLogHeader_t;
-	
-	typedef struct{
-		uint32_t 	ts;
-		uint8_t		szrqRoportPeriodType;			//上报周期
-		uint8_t		szrqRoportDataInterval;			//数据间隔
-		uint8_t		szrqtPeriodValue;				//周期值 
-		uint8_t		reverse;
-		uint32_t 	vol;
-		uint32_t	szrqcollectNextTm;
-		uint16_t 	flow;
-		uint16_t 	crc;
-	}szrqVolLogItem_t;	
 	
 
-	
-	#define SZRQ_VOLLOG_HEADER_START_ADDR	(DATA_EEPROM_BANK2_BASE+256)
-	#define SZRQ_VOLLOG_BODY_START_ADDR		(SZRQ_VOLLOG_HEADER_START_ADDR)+sizeof(szrqVolLogHeader_t)
-	#define SZRQ_VOLLOG_ITEM_NUM_LIMITS	100
-	
-	
-	extern uint16_t freeze_part_format(void);
-	extern uint16_t freeze_part_init(void);
-	extern uint16_t freeze_item_save(void);
-	extern uint16_t freeze_item_read(uint8_t* buf,uint16_t ssize,uint16_t itemOffset);
-	extern uint16_t freeze_item_unread_num_offset(uint16_t itemOffset);
-	extern uint16_t freeze_item_get_unread_num(void);
-	
-	extern uint16_t freeze_item_get_num(void);
-	
-	extern void freeze_item_save_test(void);
-	
-	extern bool szrqRtcSync; 
-	extern uint32_t szrqcollectNextTm;
-	extern uint16_t szrqMultSendNum;
-	extern uint8_t  szrqMulHasMore;
-	extern uint8_t szrqRecHasMore;
-	//<--for szrq
-	extern uint16_t szrq_item_get_num(void);
-	extern uint16_t szrq_part_format(void);
-	extern uint16_t szrq_item_save(void);
-	extern uint16_t szrq_item_read(uint8_t* buf,uint16_t ssize,uint16_t itemOffset);
-	extern uint16_t	szrq_item_set_read_loc(uint16_t readLoc);
-	extern uint16_t szrq_item_get_unread_num(void);
-	//-->
 #ifdef __cplusplus
 	}
 #endif

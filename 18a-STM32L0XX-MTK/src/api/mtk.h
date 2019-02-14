@@ -28,9 +28,14 @@
 	
 	extern TaskHandle_t idTheadUdpId;
 	#define flg_NB_MODULE_UART_RECEIVED_LF 		(0x01ul<<0x00)
-	#define flg_NB_MODULE_COMM_PROCESS_REQ		(0x01ul<<0x01)
-	#define flg_NB_MODULE_UART_RECEIVED_ERROR	(0x01ul<<0x02)
-	#define flg_NB_MODULE_RF_CLOSE				(0x01ul<<0x03)
+	#define flg_NB_MODULE_UART_RECEIVED_ERROR	(0x01ul<<0x01)
+	
+	
+	#define flg_NB_PROCESS_MODULE_RF_CLOSE				(0x01ul<<0x02)
+	#define flg_NB_PROCESS_LOAD_BUFFER					(0x01ul<<0x03)
+	#define flg_NB_PROCESS_SEND_REAL					(0x01ul<<0x04)
+	#define flg_NB_PROCESS_SEND_OLD						(0x01ul<<0x05)
+	
 	#define flg_NB_MODULE_ALL_BITS (flg_NB_MODULE_UART_RECEIVED_LF | flg_NB_MODULE_UART_RECEIVED_ERROR)
 	
 	//osMessageQDef(nbSendMsgQ, 5);

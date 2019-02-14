@@ -892,7 +892,7 @@ extern bool nbRun;
 void ui_disp_menu(void)
 {
 	//显示充值量
-
+	m_lcd_enable();
 	switch(menu){
 		case MENU_HOME:				ui_disp_menu_home();		break;
 		case MENU_ID:				ui_disp_menu_id();			break;

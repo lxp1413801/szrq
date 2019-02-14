@@ -126,6 +126,14 @@ uint16_t __szrq_get_cimi(uint8_t* szrqCimi)
 	return i;
 }
 
+int16_t __szrq_modify_hase_more(uint8_t* buf,uint16_t len,uint8_t haseMore)
+{
+	__szrq_framHeader_t* sth=(__szrq_framHeader_t*)buf;
+	sth->hasMore=haseMore;
+	__szrq_crc16_append(buf,len-3);	
+	return len;
+}
+
 int16_t __szrq_load_frame_header(uint8_t* buf,uint16_t ssize,uint8_t dsr,uint8_t cmd)
 {
 	uint16_t t16=0x00;
@@ -1060,6 +1068,7 @@ int16_t __szrq_load_frame_step_slu(uint8_t* buf,uint16_t ssize,uint8_t cmd)
 
 int16_t __szrq_ins_common_rsp(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,uint16_t ssize)
 {
+	int16_t t16;
 	__szrq_framHeader_t* sth;
 	sth=(__szrq_framHeader_t*)rbuf;
 
@@ -1085,11 +1094,14 @@ int16_t __szrq_ins_common_rsp(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,uint16
 	if(sth->cmd==SZRQ_CMD_POP_MULT_RSP){
 		szrq_item_set_read_loc(szrqMultSendNum);
 		if(szrqMulHasMore){
-			szrqSendStaMichine=__15S_SEND_SM_POP;
+			//szrqSendStaMichine=__15S_SEND_SM_POP;
 			return 1;
 		}
-	}	
-
+	}else{
+		t16=rf_send_fifo_delete_tail();
+		if(t16)return 1;
+	}		
+	/*
 	//if(sth->cmd==SZRQ_CMD_WARNING_REPORT_RSP && stb->rsp==1){
 	if(sth->cmd==SZRQ_CMD_WARNING_REPORT_RSP){
 		if(szrqWarnReportSendOld){
@@ -1098,6 +1110,7 @@ int16_t __szrq_ins_common_rsp(uint8_t* rbuf, uint16_t rlen, uint8_t* sbuf,uint16
 			return 1;			
 		}
 	}
+	*/
 	return 0;
 }
 
