@@ -269,8 +269,8 @@ uint8_t check_vavle_open_condition()
 	if(sysData.lockReason.bits.bStrongMagnetic >=MAX_STE_OFF_TIMES)return 0;
 	
 	rtVolumeRefreshFlag=true;
-	api_calc_all();  
-	if(ovmStatus==OV_OFF)ret=0;
+	//api_calc_all();  
+	//if(ovmStatus==OV_OFF)ret=0;
 
 	if(sysData.devStatus.bits.bNoNetWork)return 0;
 /*

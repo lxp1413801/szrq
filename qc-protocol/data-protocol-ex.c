@@ -196,7 +196,7 @@ bool __hal_fi_off(overageVMState_t ov)
 		sysData.devStatus.bits.bWarnOffTime=0;
 	}
 
-	if(ov!=OV_OFF){
+	if(ov!=OV_OFF || !ret){
 		sysData.lockReason.bits.bBalance=0;
 	}
 	//后台结算以及抄表模式下不不关阀
@@ -208,42 +208,16 @@ bool __hal_fi_off(overageVMState_t ov)
 
 void __hal_fi_off_redo(overageVMState_t ov)
 {
-	/*
+
+	bool ret=false;
 	if(ov==OV_OFF){
 		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_OFF;
 		sysData.lockReason.bits.bBalance=1;
-		//ret=true;
+		ret=fi_szrq_balance_off_vavle_close_en();
 	}else if(ov==OV_WARNNING_OFF){
 		sysData.lockReason.bits.bBalance=0;
-		if(sysData.devStatus.bits.bWarnTempOffTime==0){
-			sysData.devStatus.bits.bBalanceSta=OV_WARNNING_OFF;
-			//sysData.devStatus.bits.bWarnOffTime=1;
-			//ret=true;
-			
-		}
-		
-	}else if(  ov==OV_WARNNING){
-		sysData.lockReason.bits.bBalance=0;
-		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_WARNING;
-		
-	}else{
-		sysData.lockReason.bits.bBalance=0;
-		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_NORMAL;
-		sysData.devStatus.bits.bWarnTempOffTime=0;
-	}
-	*/
-	if(ov==OV_OFF){
-		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_OFF;
-		sysData.lockReason.bits.bBalance=1;
-		//ret=true;
-		//ret=fi_szrq_balance_off_vavle_close_en();
-	}else if(ov==OV_WARNNING_OFF){
-		sysData.lockReason.bits.bBalance=0;
-		//sysData.lockReason.bits.bBalance=0;
 		if(sysData.devStatus.bits.bTempOffTime==0){
 			sysData.devStatus.bits.bBalanceSta=OV_WARNNING_OFF;
-			//sysData.devStatus.bits.bTempOffTime=1;
-			//ret=true;
 			//ret=fi_szrq_balance_temp_off_vavle_close_en();
 		}
 		
@@ -262,6 +236,9 @@ void __hal_fi_off_redo(overageVMState_t ov)
 		sysData.devStatus.bits.bBalanceSta=CNM_BALANCE_NORMAL;
 		sysData.devStatus.bits.bWarnOffTime=0;
 	}	
+	if(ov!=OV_OFF || !ret){
+		sysData.lockReason.bits.bBalance=0;
+	}
 }
 
 

@@ -258,12 +258,12 @@ void ui_hard_default_disp(void)
 
 void ui_disp_buy_gas_prompt(void)
 {
-	if(sysData.devStatus.bits.bBalanceSta!=CNM_BALANCE_NORMAL){
-		//m_lcd_disp_seg_QGQ_I();
-		m_lcd_disp_seg_pls_recharge();
-	}
 	if(sysData.devStatus.bits.bBalanceSta==CNM_BALANCE_OFF){
 		m_lcd_disp_seg_owe();
+	}	
+	else if(sysData.devStatus.bits.bBalanceSta!=CNM_BALANCE_NORMAL){
+		//m_lcd_disp_seg_QGQ_I();
+		m_lcd_disp_seg_pls_recharge();
 	}
 }
 

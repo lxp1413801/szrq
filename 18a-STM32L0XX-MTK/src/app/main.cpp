@@ -95,7 +95,7 @@ void pre_star_thread_main_00(void)
 	
 	qc_data_mutex_create();
 	m_thread_create_sysdata();
-	qc_data_sysdata_set_default();
+	//qc_data_sysdata_set_default();
 
 	//szrq_part_format();
 	qc_data_sysdata_init();
@@ -168,7 +168,7 @@ void vTheadMain(void * pvParameters)
 			menu=MENU_HOME;
 			subMenu=subMENU_HOME_VAVLE_ON;
 			app_valve_on();
-			subMenu=subMENU_HOME_MAIN;
+			subMenu=bkSubMenu;
 			flgValveErrSend=false;			
 		}
 		if(event.value.signals & flg_MAIN_THREAD_VALVE_OFF){
