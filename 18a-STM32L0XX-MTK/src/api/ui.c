@@ -201,10 +201,10 @@ void ui_disp_comm_battery_segment(void)
 {
 	#if(BATTARY_TYPE==BATTARY_TYPE_LI_SOCL)
 	m_lcd_disp_bat_level0();
-	if(voltBat>=3100)m_lcd_disp_bat_level1();
-	if(voltBat>=3200)m_lcd_disp_bat_level2();
-	if(voltBat>=3300)m_lcd_disp_bat_level3();
-	if(voltBat>=3400)m_lcd_disp_bat_level4();
+	if(voltBat>=2500)m_lcd_disp_bat_level1();
+	if(voltBat>=2900)m_lcd_disp_bat_level2();
+	if(voltBat>=3100)m_lcd_disp_bat_level3();
+	if(voltBat>=3300)m_lcd_disp_bat_level4();
 	if(voltBat>=3500)m_lcd_disp_bat_level5();
 	#else
 	m_lcd_disp_bat_level0();

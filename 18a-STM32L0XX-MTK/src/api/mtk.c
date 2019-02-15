@@ -1429,51 +1429,28 @@ void vTheadNbBc26(void * pvParameters)
 	while(1){
 		nbRun=false;
 		//osDelay(4000);
-
 		api_calc_all();
 		event=osMessageGet(nbSendMsgQ, osWaitForever );
-		//<<-- for debug 
-		//continue;
-		//-->>
-		nbRun=true;	
-		api_sysdata_save();
-		mtk_hal_pins_init();
 		if(event.status != osEventMessage)continue;
 		__msg.t32=event.value.v;
+		api_sysdata_save();
 		
-		if(__msg.str.eventMsg & flg_NB_PROCESS_LOAD_BUFFER){
-			
-			len=0;
-			if(__msg.str.popType==POP_TYPE_SINGLE){
-				if(pwrStatus==POWER_STATUS_DOWN)continue;
-				len=__szrq_load_frame_pop_s(nbAplSendBuffer,sizeof(nbAplSendBuffer),__msg.str.popPeriod);
-			}else if(__msg.str.popType==POP_TYPE_MULT){
-				continue;
-			}else if(__msg.str.popType==POP_TYPE_WARNING){
-				
-				if(pwrStatus==POWER_STATUS_DOWN && __msg.str.warnValue!=SZRQ_WARNVAL_PDBAT0)continue;
-				osDelay(2000);
-				len=__szrq_load_frame_warn_report_ex(nbAplSendBuffer,sizeof(nbAplSendBuffer),__msg.str.warnFlg,__msg.str.warnValue);
-			}
-			if(len){
-				rf_send_fifo_push(nbAplSendBuffer,len);
-				if(!if_pwr_status_normal())continue ;
-				udpSendmsg.t32=0x00UL;
-				udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_SEND_OLD;			
-				even_send_msg_to_start_rf(&udpSendmsg);	
-				continue;
-			}
+		if(__msg.str.eventMsg & flg_NB_PROCESS_SEND_OLD){
+			osMutexWait(osMutexSysData,osWaitForever);
+			len=rf_send_fifo_get_tail(nbAplSendBuffer,(uint16_t*)&ret);
+			osMutexRelease(osMutexSysData);	
+			if(len<sizeof(__szrq_framHeader_t))continue;
 		}
-				
 		
+		nbRun=true;	
+		mtk_hal_pins_init();
+
 		if(__msg.str.eventMsg &  flg_NB_PROCESS_MODULE_RF_CLOSE){
 			bc26_hal_power_off();
 			continue;
 		}
-		
 
 		if(__msg.str.eventMsg & (flg_NB_PROCESS_SEND_REAL | flg_NB_PROCESS_SEND_OLD)){	
-
 			ret=bc26_send_ready();
 			if(ret<=0){
 				menu=MENU_HOME;
@@ -1494,8 +1471,13 @@ void vTheadNbBc26(void * pvParameters)
 						szrqMultSendNum=0x00;
 						len=__szrq_load_frame_pop_m(nbAplSendBuffer,sizeof(nbAplSendBuffer));						
 					}else{
+						
+						osMutexWait(osMutexSysData,osWaitForever);
 						len=rf_send_fifo_get_tail(nbAplSendBuffer,(uint16_t*)&ret);
-						if(ret>1)__szrq_modify_hase_more(nbAplSendBuffer,len,1);
+						osMutexRelease(osMutexSysData);	
+						
+						if(ret>1 && len>sizeof(__szrq_framHeader_t))__szrq_modify_hase_more(nbAplSendBuffer,len,1);
+						if(len<sizeof(__szrq_framHeader_t))len=0;
 					}
 				}else{
 
@@ -1536,8 +1518,7 @@ void vTheadNbBc26(void * pvParameters)
 						if(ret==0)continue;
 						if(ret<0)break;
 						ret=__szrq_received_process(nbAplReceivedBuffer,ret,nbAplSendBuffer,sizeof(nbAplSendBuffer));
-					}
-					
+					}				
 					//接收到指令
 					if(ret>0){
 						len=ret;

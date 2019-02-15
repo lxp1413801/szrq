@@ -471,6 +471,11 @@ uint16_t rf_send_fifo_push(uint8_t* buf,uint16_t len)
 	
 	crc_append((uint8_t*)&item,sizeof(rfSendFifoBody_t)-2);
 	qc_data_write_to_media(itemAddr,(uint8_t*)&item,sizeof(rfSendFifoBody_t));
+	t16=crc_verify((uint8_t*)&item,sizeof(rfSendFifoBody_t));
+	if(!t16){
+		__nop();
+		return 0;
+	}
 	//
 	if(partHeader.itemNum<RF_SEND_FIFO_ITEM_NUM_LIMIT)partHeader.itemNum++;
 	if(partHeader.unreadNum<RF_SEND_FIFO_ITEM_NUM_LIMIT)partHeader.unreadNum++;
@@ -479,6 +484,7 @@ uint16_t rf_send_fifo_push(uint8_t* buf,uint16_t len)
 	partHeader.writeLoc=t16;
 	crc_append((uint8_t*)&partHeader,sizeof(rfSendFifoHeader_t)-2);
 	qc_data_write_to_media(RF_SEND_FIFO_HEAD_START_ADDR,(uint8_t*)&partHeader,sizeof(rfSendFifoHeader_t));
+	rf_send_fifo_init();
 	return partHeader.itemNum;
 }
 
@@ -502,6 +508,7 @@ uint16_t rf_send_fifo_item_get_unread_num(void)
 
 uint16_t rf_send_fifo_get_tail(uint8_t* buf,uint16_t* unreadNum)
 {
+	//volItem_t
 	uint32_t t32,itemAddr;
 	uint16_t t16;
 	rfSendFifoHeader_t partHeader;
@@ -519,13 +526,14 @@ uint16_t rf_send_fifo_get_tail(uint8_t* buf,uint16_t* unreadNum)
 
 
 	//¼ÆËãitemµØÖ·
-	t32=sizeof(volItem_t)*(uint32_t)t16;
+	t32=sizeof(rfSendFifoBody_t)*(uint32_t)t16;
 	itemAddr=RF_SEND_FIFO_BODY_START_ADDR+t32;
 	
 	qc_data_read_from_media((uint8_t*)&item,itemAddr,sizeof(rfSendFifoBody_t));
 	t16=crc_verify((uint8_t*)&item,sizeof(rfSendFifoBody_t));
 	if(!t16){
 		rf_send_fifo_format();
+		*unreadNum=0;
 		return 0;
 	}
 	t16=item.len;

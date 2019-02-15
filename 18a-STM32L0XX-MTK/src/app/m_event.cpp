@@ -75,64 +75,97 @@ void even_send_msg_to_rf_off(void)
 {
 	udpSendmsg.t32=0x00UL;
 	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_MODULE_RF_CLOSE;
-	even_send_msg_to_start_rf(&udpSendmsg);	
+	if((void*)nbSendMsgQ)even_send_msg_to_start_rf(&udpSendmsg);	
 }
 
 
 void even_send_msg_to_rf_send_warnning(uint8_t warnFlg,uint8_t warnValue)
 {
+	uint16_t len;
+	uint8_t buf[256];
+
+	osDelay(2000);
+	len=__szrq_load_frame_warn_report_ex(buf,sizeof(buf),warnFlg,warnValue);	
+	
+	osMutexWait(osMutexSysData,osWaitForever);
+	if(len)rf_send_fifo_push(buf,len);
+	osMutexRelease(osMutexSysData);
+
+	if(!if_pwr_status_normal())return;
+	
 	udpSendmsg.t32=0x00UL;
-	udpSendmsg.str.popType=POP_TYPE_WARNING;
-	udpSendmsg.str.warnFlg=warnFlg;
-	udpSendmsg.str.warnValue=warnValue;
-	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_LOAD_BUFFER;
-	even_send_msg_to_start_rf(&udpSendmsg);	
+	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_SEND_OLD;	
+
+	
+	if((void*)nbSendMsgQ)even_send_msg_to_start_rf(&udpSendmsg);		
 }
 
 void even_send_msg_to_rf_send_temp(void)
 {
+	uint16_t len;
+	uint8_t buf[256];
+	//
+	if(!if_pwr_status_normal())return;
+	len=__szrq_load_frame_pop_s(buf,sizeof(buf),POP_SINGLE_PERIOD_TEMP);	
+	
+	osMutexWait(osMutexSysData,osWaitForever);
+	if(len)rf_send_fifo_push(buf,len);
+	osMutexRelease(osMutexSysData);
+
 	udpSendmsg.t32=0x00UL;
-	udpSendmsg.str.popType=POP_TYPE_SINGLE;
-	udpSendmsg.str.popPeriod=POP_SINGLE_PERIOD_TEMP;
-	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_LOAD_BUFFER;
-	even_send_msg_to_start_rf(&udpSendmsg);
+	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_SEND_OLD;			
+	if((void*)nbSendMsgQ)even_send_msg_to_start_rf(&udpSendmsg);		
 }
 
 void even_send_msg_to_rf_send_single(void)
 {
-	if(sysData.szrqRoportPeriodType<5){
-		udpSendmsg.str.popType=POP_TYPE_SINGLE;
-	}else{
-		//udpSendmsg.str.popType=POP_TYPE_MULT;
-		return;
-	}
+	uint16_t len;
+	uint8_t buf[256];
 	
-	udpSendmsg.str.popPeriod=sysData.szrqRoportPeriodType;
-	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_LOAD_BUFFER;
-	even_send_msg_to_start_rf(&udpSendmsg);	
+	if(!if_pwr_status_normal())return;
+	len=__szrq_load_frame_pop_s(buf,sizeof(buf),sysData.szrqRoportPeriodType);	
+	
+	osMutexWait(osMutexSysData,osWaitForever);
+	if(len)rf_send_fifo_push(buf,len);
+	osMutexRelease(osMutexSysData);
+	
+	udpSendmsg.t32=0x00UL;
+	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_SEND_OLD;			
+	if((void*)nbSendMsgQ)even_send_msg_to_start_rf(&udpSendmsg);		
 }
 
 void even_send_msg_to_rf_send_mult(void)
 {
 	if(!if_pwr_status_normal())return ;
+	udpSendmsg.t32=0x00UL;
 	if(sysData.szrqRoportPeriodType<5){
-		//udpSendmsg.str.popType=POP_TYPE_SINGLE;
 		return;
 	}else{
 		udpSendmsg.str.popType=POP_TYPE_MULT;
 	}
 	udpSendmsg.str.popPeriod=sysData.szrqRoportPeriodType;
 	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_SEND_REAL;
-	even_send_msg_to_start_rf(&udpSendmsg);	
+	
+	if((void*)nbSendMsgQ)even_send_msg_to_start_rf(&udpSendmsg);	
 }
 
 void even_send_msg_to_rf_every_day(void)
 {
+
+	
+	uint16_t len;
+	uint8_t buf[256];
+	
+	if(!if_pwr_status_normal())return;
+	len=__szrq_load_frame_pop_s(buf,sizeof(buf),POP_SINGLE_PERIOD_DAY);	
+	
+	osMutexWait(osMutexSysData,osWaitForever);
+	if(len)rf_send_fifo_push(buf,len);
+	osMutexRelease(osMutexSysData);	
+	
 	udpSendmsg.t32=0x00UL;
-	udpSendmsg.str.popType=POP_TYPE_SINGLE;
-	udpSendmsg.str.popPeriod=POP_SINGLE_PERIOD_DAY;
-	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_LOAD_BUFFER;			
-	even_send_msg_to_start_rf(&udpSendmsg);
+	udpSendmsg.str.eventMsg=(uint8_t)flg_NB_PROCESS_SEND_OLD;			
+	if((void*)nbSendMsgQ)even_send_msg_to_start_rf(&udpSendmsg);			
 }
 
 void buzzer_beap_ms(uint16_t ms)
@@ -858,6 +891,7 @@ void event_shell_open_process(void)
 		if(!shellOpened){
 			//if(!szrqRtcSync)return;
 			shellOpened=true;
+			if(noEventTimeOut<NO_EVEN_MAX_TIME_OUT)noEventTimeOut=NO_EVEN_MAX_TIME_OUT;
 			even_send_msg_to_rf_send_warnning(1,SZRQ_WARNVAL_SHELL_OPENB);	
 		}
 	}else{
@@ -869,6 +903,7 @@ void event_shell_open_process(void)
 		if(shellOpened){
 			//if(!szrqRtcSync)return;
 			shellOpened=false;	
+			if(noEventTimeOut<NO_EVEN_MAX_TIME_OUT)noEventTimeOut=NO_EVEN_MAX_TIME_OUT;
 			even_send_msg_to_rf_send_warnning(0,SZRQ_WARNVAL_SHELL_OPENB);	
 		}
 		
@@ -899,6 +934,7 @@ void event_alarm_process(void)
 		
 		if(gasLeaked){
 			gasLeaked=false;	
+			if(noEventTimeOut<NO_EVEN_MAX_TIME_OUT)noEventTimeOut=NO_EVEN_MAX_TIME_OUT;
 			even_send_msg_to_rf_send_warnning(0,SZRQ_WARNVAL_LEAKAGE);	
 		}
 		return;
@@ -918,6 +954,7 @@ void event_alarm_process(void)
 		
 		if(!gasLeaked){
 			gasLeaked=true;	
+			if(noEventTimeOut<NO_EVEN_MAX_TIME_OUT)noEventTimeOut=NO_EVEN_MAX_TIME_OUT;
 			even_send_msg_to_rf_send_warnning(1,SZRQ_WARNVAL_LEAKAGE);			
 		}
 		
@@ -948,6 +985,7 @@ void event_ste_process(void)
 		m_gpio_config_ste_irq_re_enable();
 		if(steStatusied){
 			steStatusied=false;
+			if(noEventTimeOut<NO_EVEN_MAX_TIME_OUT)noEventTimeOut=NO_EVEN_MAX_TIME_OUT;
 			even_send_msg_to_rf_send_warnning(0,SZRQ_WARNVAL_STE);
 		}
 		return;
@@ -973,8 +1011,10 @@ void event_ste_process(void)
 		}
 		if(!steStatusied){
 			steStatusied=true;		
+			if(noEventTimeOut<NO_EVEN_MAX_TIME_OUT)noEventTimeOut=NO_EVEN_MAX_TIME_OUT;
 			even_send_msg_to_rf_send_warnning(1,SZRQ_WARNVAL_STE);
 		}
+
 	}else{
 		//DeviceEvent.bits.bStrongMagnetic=0;
 		

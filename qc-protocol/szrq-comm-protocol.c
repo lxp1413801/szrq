@@ -128,6 +128,7 @@ uint16_t __szrq_get_cimi(uint8_t* szrqCimi)
 
 int16_t __szrq_modify_hase_more(uint8_t* buf,uint16_t len,uint8_t haseMore)
 {
+	if(len>MAX_UART_TX_BUFFER_LEN)return 0;
 	__szrq_framHeader_t* sth=(__szrq_framHeader_t*)buf;
 	sth->hasMore=haseMore;
 	__szrq_crc16_append(buf,len-3);	

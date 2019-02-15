@@ -32,7 +32,7 @@
 	
 	
 	#define flg_NB_PROCESS_MODULE_RF_CLOSE				(0x01ul<<0x02)
-	#define flg_NB_PROCESS_LOAD_BUFFER					(0x01ul<<0x03)
+	//#define flg_NB_PROCESS_LOAD_BUFFER					(0x01ul<<0x03)
 	#define flg_NB_PROCESS_SEND_REAL					(0x01ul<<0x04)
 	#define flg_NB_PROCESS_SEND_OLD						(0x01ul<<0x05)
 	

@@ -75,11 +75,11 @@ void pre_star_thread_main_00(void)
 	m_buzzer_init();
 	m_lcd_init();
 	m_lcd_all_on();
-	
+	m_lcd_enable();
 	//m_gpio_config_vavle();
 	
 	
-	osDelay(10);
+	osDelay(1000);
 	
 	m_clock_set_system_clock_msi();
 	prvSetupTimerInterrupt();
