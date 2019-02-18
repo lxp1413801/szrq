@@ -163,6 +163,7 @@ void vTheadMain(void * pvParameters)
 		event=osSignalWait(flg_MAIN_THREAD_ALL_BITS,osWaitForever);
 		//osDelay(100);
 		if(event.value.signals & flg_MAIN_THREAD_VALVE_ON){
+			if(noEventTimeOut<NO_EVEN_MAX_TIME_OUT)noEventTimeOut=NO_EVEN_MAX_TIME_OUT;
 			bkMenu=menu;
 			bkSubMenu=subMenu;
 			menu=MENU_HOME;
@@ -172,6 +173,7 @@ void vTheadMain(void * pvParameters)
 			flgValveErrSend=false;			
 		}
 		if(event.value.signals & flg_MAIN_THREAD_VALVE_OFF){
+			if(noEventTimeOut<NO_EVEN_MAX_TIME_OUT)noEventTimeOut=NO_EVEN_MAX_TIME_OUT;
 			bkMenu=menu;
 			bkSubMenu=subMenu;		
 			menu=MENU_HOME;

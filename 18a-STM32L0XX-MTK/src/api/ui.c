@@ -287,10 +287,6 @@ void ui_disp_pay_value(void)
 	
 }
 
-
-
-
-
 void ui_disp_overage_v(void)
 {
 
@@ -300,8 +296,6 @@ void ui_disp_overage_v(void)
 	m_lcd_disp_seg_balance_vol();
 	
 }
-
-
 
 void ui_disp_overage_m(void)
 {
@@ -316,7 +310,6 @@ void ui_disp_overage_m(void)
 	m_lcd_disp_seg_balance_m();	
 
 }
-
 
 void ui_disp_off_reason(void)
 {
@@ -346,15 +339,10 @@ void ui_disp_off_reason(void)
 		case OFF_REASON_CZSN_WARNING:	m_lcd_disp_str((uint8_t*)"pr-Off");break;
 		case OFF_REASON_SHELL_OPEN:		m_lcd_disp_str((uint8_t*)"sh-Off");break;
 		default	:						m_lcd_disp_str((uint8_t*)" press");break;
-		
-		
-		
 	}
     
     //if(t8==OFF_REASON_HIGHT_GAS_FLOW)
         //m_lcd_disp_seg_GLBH_E();
-    
-
 }
 
 
@@ -382,9 +370,6 @@ void ui_disp_device_ver(void)
 	m_lcd_disp_str(lcdBuf);	
 	//m_lcd_refresh();
 }
-
-
-
 
 void ui_disp_off(void)
 {
@@ -552,8 +537,6 @@ void __ui_disp_menu_home_vavle_off(void)
 	m_lcd_disp_str(lcdBuf); 
 }
 
-
-
 void ui_disp_menu_home(void)
 {
 	lcd_clear_all(); 
@@ -568,10 +551,9 @@ void ui_disp_menu_home(void)
 		case subMENU_HOME_NB_SEND:		__ui_disp_menu_home_rf_send();		break;
 		case subMENU_HOME_NB_REC:		__ui_disp_menu_home_rf_rec();		break;
 		case subMENU_HOME_NB_END:		__ui_disp_menu_home_rf_end();		break;
-		case subMENU_HOME_VAVLE_OFF:	__ui_disp_menu_home_vavle_off();		break;
-		case subMENU_HOME_VAVLE_ON:		__ui_disp_menu_home_vavle_on();	break;
-	}
-	
+		case subMENU_HOME_VAVLE_OFF:	__ui_disp_menu_home_vavle_off();	break;
+		case subMENU_HOME_VAVLE_ON:		__ui_disp_menu_home_vavle_on();		break;
+	}	
 }
 
 void ui_disp_menu_id(void)
@@ -689,18 +671,17 @@ void ui_disp_menu_qn(void)
 	_qn=sysData.QN;
 	lcd_clear_all(); 
 	switch(_qn){
-        case QN10: 		m_lcd_disp_str(__xT("   qn:10"));m_lcd_disp_seg_dp1();break;
-        case QN16: 		m_lcd_disp_str(__xT("   qn:16"));m_lcd_disp_seg_dp1();break;           
-        case QN25: 		m_lcd_disp_str(__xT("   qn:25"));m_lcd_disp_seg_dp1();break;
-        case QN40: 		m_lcd_disp_str(__xT("   qn:4 "));break;            
-        case QN60: 		m_lcd_disp_str(__xT("   qn:6 "));break;
-        case QN100: 	m_lcd_disp_str(__xT("  qn:10 "));break;            
-        case QN160: 	m_lcd_disp_str(__xT("  qn:16 "));break;
-        case QN250: 	m_lcd_disp_str(__xT("  qn:25 "));break;            
-        case QN400: 	m_lcd_disp_str(__xT("  qn:40 "));break;
-		default :		m_lcd_disp_str(__xT("  qn:err"));break;
+        case QN10: 		m_lcd_disp_str(__xT("   qn:10"));m_lcd_disp_seg_dp1();	break;
+        case QN16: 		m_lcd_disp_str(__xT("   qn:16"));m_lcd_disp_seg_dp1();	break;           
+        case QN25: 		m_lcd_disp_str(__xT("   qn:25"));m_lcd_disp_seg_dp1();	break;
+        case QN40: 		m_lcd_disp_str(__xT("   qn:4 "));						break;            
+        case QN60: 		m_lcd_disp_str(__xT("   qn:6 "));						break;
+        case QN100: 	m_lcd_disp_str(__xT("  qn:10 "));						break;            
+        case QN160: 	m_lcd_disp_str(__xT("  qn:16 "));						break;
+        case QN250: 	m_lcd_disp_str(__xT("  qn:25 "));						break;            
+        case QN400: 	m_lcd_disp_str(__xT("  qn:40 "));						break;
+		default :		m_lcd_disp_str(__xT("  qn:err"));						break;
 	}
-
 }
 
 void ui_disp_menu_ver(void)
@@ -858,9 +839,6 @@ void ui_disp_menu_hms(void)
 	m_lcd_disp_seg_oclock();
 }
 
-
-
-
 void ui_disp_menu_szrq_balance(void)
 {
 
@@ -888,6 +866,7 @@ void ui_disp_menu_ir(void)
 	lcd_clear_all(); 
 	m_lcd_disp_str(lcdBuf);		
 }
+
 extern bool nbRun;
 void ui_disp_menu(void)
 {
