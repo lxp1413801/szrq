@@ -178,7 +178,9 @@ void vTheadMain(void * pvParameters)
 			bkSubMenu=subMenu;		
 			menu=MENU_HOME;
 			subMenu=subMENU_HOME_VAVLE_OFF;	
+			ui_disp_menu();
 			app_valve_off();
+			osDelay(2000);
 			//menu=bkMenu;
 			//subMenu=bkSubMenu;	
 			if(menu== MENU_HOME && subMenu==subMENU_HOME_VAVLE_OFF){
@@ -192,7 +194,7 @@ void vTheadMain(void * pvParameters)
 
 void m_thread_create_main(void)
 {
-	osThreadDef(TheadMain, vTheadMain, osPriorityNormal, 0, configMINIMAL_STACK_SIZE*2);
+	osThreadDef(TheadMain, vTheadMain, osPriorityHigh, 0, configMINIMAL_STACK_SIZE*2);
 	vTheadMainID=osThreadCreate(osThread(TheadMain), NULL);	
 }
 

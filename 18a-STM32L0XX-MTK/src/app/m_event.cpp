@@ -84,7 +84,8 @@ void even_send_msg_to_rf_send_warnning(uint8_t warnFlg,uint8_t warnValue)
 	uint16_t len;
 	uint8_t buf[256];
 
-	osDelay(2000);
+	//osDelay(2000);
+
 	len=__szrq_load_frame_warn_report_ex(buf,sizeof(buf),warnFlg,warnValue);	
 	
 	osMutexWait(osMutexSysData,osWaitForever);
@@ -189,6 +190,7 @@ void app_valve_on_msg_send(void)
 {
 	if((void*)vTheadMainID){
 		osSignalSet( vTheadMainID, flg_MAIN_THREAD_VALVE_ON);
+		osDelay(5);
 	}		
 }
 
@@ -196,6 +198,7 @@ void app_valve_off_msg_send(void)
 {
 	if((void*)vTheadMainID){
 		osSignalSet( vTheadMainID, flg_MAIN_THREAD_VALVE_OFF);
+		osDelay(5);
 	}	
 }
 
@@ -327,6 +330,17 @@ uint8_t event_process_unlock(void)
 			vavle_on_from_app();
 	}	
     return 0;
+}
+
+
+uint16_t even_key_down_clear_lock(void)
+{
+	if(menu!=MENU_RTC_HMS)return 0;
+	if(sysData.lockReason.bits.bShellOpen){
+		sysData.lockReason.bits.bShellOpen=0;
+		return 1;
+	}
+	return 0;
 }
 
 uint16_t even_key_down_super_pay(void)
@@ -496,17 +510,13 @@ void event_key_down_process(void)
 			event_set_globle_time_out_max();
 			m_lcd_enable();
 			buzzer_beap_ms(200);
-			//if(even_key_down_super_pay())break;
 			if(even_key_down_valve_ctrl())break;
 			#if cfg_IRDA_EN
 			if(even_key_down_connect_ir())break;
 			#endif
+			//if(even_key_down_clear_lock())break;
 			if(even_key_down_connect_udp())break;
-			
-			//if(even_key_down_super_pay())break;
-			even_key_down_super_pay();
-			break;
-			
+			if(even_key_down_super_pay())break;
 		}
 		buzzer_beap_ms(20);
 		if(!(m_lcd_get_status())){
@@ -547,7 +557,6 @@ void event_clear_no_network(void)
 		sysData.devStatus.bits.bNoNetWork=0;
 		//lockReason.bits.bNoNetwork=0;
 		api_sysdata_save();
-		
 	}
 }
 
@@ -884,6 +893,7 @@ void event_shell_open_process(void)
 		sysData.lockReason.bits.bShellOpen=1;
 		if(fi_szrq_shell_open_close_vavle_close_en()){
 			vavle_off_from_app(OFF_REASON_SHELL_OPEN);
+			
 		}else{
 			sysData.lockReason.bits.bShellOpen=0;
 		}
@@ -892,7 +902,9 @@ void event_shell_open_process(void)
 			//if(!szrqRtcSync)return;
 			shellOpened=true;
 			if(noEventTimeOut<NO_EVEN_MAX_TIME_OUT)noEventTimeOut=NO_EVEN_MAX_TIME_OUT;
+			//osDelay(2000);
 			even_send_msg_to_rf_send_warnning(1,SZRQ_WARNVAL_SHELL_OPENB);	
+			
 		}
 	}else{
 		sysData.devStatus.bits.bShellOpenB=0;

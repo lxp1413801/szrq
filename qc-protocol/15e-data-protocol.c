@@ -1,11 +1,3 @@
-/*
-	保存数据的时候，每次从实时全局变量读入值到sysData中；
-	而执行上位机指令时，实际很可能直接修改的系统数据sysData结构体；
-	这样会很多地方的指令执行是数据错误。
-	评语：搞JB！
-	处理办法在通讯处理单元模块中加入一个sysData数据的保存函数规避这个问题
-	通讯处理单元中的各个函数只能调用文件内的数据保存函数！！！
-*/
 #include "./includes/includes.h"
 
 //stDevStatus_t lastDevStatus,nowDevStatus;

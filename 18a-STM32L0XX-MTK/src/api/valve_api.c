@@ -46,6 +46,7 @@ void app_valve_on(void)
 	vavleState=VALVE_OPERATION_ON;
 	m_gpio_config_vavle();
 	m_vavle_on();
+	
 	t16=valveRuntime*10;
 	while(t16){
 		get_battary_rtadc();

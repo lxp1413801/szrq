@@ -67,7 +67,7 @@ uint8_t __szrq_get_valve_status(void)
 	if(vavleState==VALVE_ON ){
 		ret=SZRQ_VALVE_ON;
 	}else{
-		if(sysData.lockReason.bits.bSeverOff || sysData.lockReason.bits.bBalance || \
+		if(sysData.lockReason.bits.bShellOpen || sysData.lockReason.bits.bSeverOff || sysData.lockReason.bits.bBalance || \
 		sysData.lockReason.bits.bStrongMagnetic>=MAX_STE_OFF_TIMES){
 			ret=SZRQ_VALVE_OFF_FORCE;
 		}else{

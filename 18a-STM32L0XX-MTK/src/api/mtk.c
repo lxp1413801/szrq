@@ -713,6 +713,7 @@ int16_t bc26_hal_power_off(void)
 		m_lpusart1_init(9600);			
 	}
 	*/
+	mtk_at_cmd((uint8_t*)"AT+CFUN=0\r\n",(uint8_t*)"OK",recbuf,reclen,2*configTICK_RATE_HZ);
 	mtk_at_cmd((uint8_t*)"AT+QICLOSE=0\r\n",(uint8_t*)"OK",recbuf,reclen,2*configTICK_RATE_HZ);
 	for(i=0;i<3;i++){
 		ret=mtk_at_cmd((uint8_t*)"AT+QPOWD=0\r\n",(uint8_t*)"OK",recbuf,reclen,1*configTICK_RATE_HZ);
